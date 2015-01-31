@@ -1,0 +1,27 @@
+## General
+
+# Compiled Object files
+*.o
+
+# Compiled Dynamic libraries
+*.so
+
+# Compiled Static libraries
+*.la
+*.a
+
+# Compiled protocol buffers
+*.pb.h
+*.pb.cc
+
+# build and bins
+build
+*.testbin
+*.bin
+
+# Editor temporaries
+*.swp
+*~
+
+# CMake generated files
+*.gen.cmake
