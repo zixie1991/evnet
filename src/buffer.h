@@ -49,6 +49,27 @@ class Buffer {
          */
         void ensureWritableBytes(int len);
 
+        void set_readerIndex(int readerIndex);
+
+        int get_readerIndex();
+
+        void set_writerIndex(int writerIndex);
+
+        int get_writerIndex();
+
+        void read(int len);
+        int64_t readInt64();
+        int32_t readInt32();
+        int16_t readInt16();
+        int8_t readInt8();
+
+        void write(const char* data, int len);
+        void write(const void* data, int len);
+        void writeInt64(int64_t x);
+        void writeInt32(int32_t x);
+        void writeInt16(int16_t x);
+        void writeInt8(int8_t x);
+
     private:
         /**
          * @brief buffer_首地址
