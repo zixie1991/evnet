@@ -3,8 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <vector>
+#include <string>
 
 /**
  * @brief 应用层缓冲区: a buffer class modeled after org.jboss.netty.buffer.ChannelBuffer
@@ -21,13 +23,15 @@
 class Buffer {
     public:
         // buffer_ 初始化长度
-        static const size_t kInitialSize = 1024;
+        static const int kInitialSize = 1024;
 
         explicit Buffer(size_t initialSize=kInitialSize):
             buffer_(0 + initialSize),
             reader_index_(0),
             writer_index_(0)
         {}
+
+        ~Buffer() {}
 
         /**
          * @brief 可读的字节数目
@@ -49,30 +53,45 @@ class Buffer {
          */
         void ensureWritableBytes(int len);
 
-        void set_reader_index(int reader_index);
+        void set_reader_index(int reader_index) {
+            reader_index_ = reader_index;
+        }
 
-        int reader_index();
+        int reader_index() {
+            return reader_index_;
+        }
 
-        void set_writer_index(int writer_index);
+        void set_writer_index(int writer_index) {
+            writer_index_ = writer_index;
+        }
 
-        int writer_index();
+        int writer_index() {
+            return writer_index_;
+        }
 
         /**
-         * @brief 从reader_index_独处指定数目的字节，同时reader_index_=reader_index_+byteNumber.
+         * @brief 从reader_index_独处指定数目的字节，同时reader_index_=reader_index_+byte_number.
+         * read from network to host
          */
-        std::string read(int len);
-        std::string read();
-        int64_t readInt64();
-        int32_t readInt32();
-        int16_t readInt16();
-        int8_t readInt8();
+        int read(char* data, int len);
+        int read(char* data);
+        int read(void* data, int len);
+        int read(void* data);
+        int read(std::string& data, int len);
+        int read(std::string& data);
+        int readInt64(int64_t& x);
+        int readInt32(int32_t& x);
+        int readInt16(int16_t& x);
+        int readInt8(int8_t& x);
 
         /**
          * @brief 写入指定数目的字节，同时writer_index_=writer_index_ + byteNumber. 如果
-         *  wirterIndex_ > capacity，buffer_会自动增长
+         * wirterIndex_ > capacity，buffer_会自动增长
+         * write from host to network
          */
         void write(const char* data, int len);
         void write(const void* data, int len);
+        void write(const std::string& data);
         void writeInt64(int64_t x);
         void writeInt32(int32_t x);
         void writeInt16(int16_t x);
@@ -103,7 +122,7 @@ class Buffer {
         /**
          * @brief buffer_自动增长
          */
-        void makeSpace(size len);
+        void makeSpace(int len);
 
         // 一块连续的内存
         std::vector<char> buffer_;
