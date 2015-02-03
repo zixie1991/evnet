@@ -1,8 +1,9 @@
 #ifndef SOCKET_H_
 #define SOCKET_H_
 
+// forward declartion
+class InetAddress;
 
-/** */
 class Socket {
     public:
         explicit Socket(int sockfd):
@@ -45,6 +46,8 @@ class Socket {
          */
         void setKeepAlive(bool on);
 
+    private:
+        int sockfd_;
 };
 
 #endif // SOCKET_H_
