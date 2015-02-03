@@ -1,7 +1,7 @@
 project(NetworkSrc)
 
 #    OpenCV
-find_package(OpenCV REQUIRED)
+#find_package(OpenCV REQUIRED)
 
 #    Recursively find source files
 ##    test sources
