@@ -104,6 +104,12 @@ class Buffer {
             return buffer_.capacity();
         }
 
+        /**
+         * @brief Read data from socket into buffer.
+         * @return result of read(2), @c errno is saved
+         */
+        int readFd(int fd, int& _errno);
+
     private:
         /**
          * @brief buffer_首地址

@@ -1,5 +1,8 @@
 #include "buffer.h"
 
+#include <sys/uio.h>
+#include <errno.h>
+
 #include <string.h>
 
 #include <algorithm>
@@ -178,6 +181,35 @@ void Buffer::writeInt8(int8_t x) {
     // FIXME host to network
     int8_t n8 = x;
     write(&n8, sizeof(n8));
+}
+
+// Implement with read(2)
+int Buffer::readFd(int fd, int& _errno) {
+    // saved an ioctl()/FIONREAD call to tell how much to read
+    // 如果读入的数据不多，则全部读到buffer中；
+    // 如果长度超过buffer的writable字节数目，就会读到栈上的extrabuf上
+    char extrabuf[65536];
+    struct iovec vec[2];
+    int writable = writableBytes();
+
+    vec[0].iov_base = begin() + writer_index_;
+    vec[0].iov_len = writable;
+    vec[1].iov_base = extrabuf;
+    vec[1].iov_len = sizeof(extrabuf);
+
+    const int iovcnt = (writable < static_cast<int>(sizeof(extrabuf))) ? 2 : 1;
+    int n = ::readv(fd, vec, iovcnt);
+
+    if (n < 0) {
+        _errno = errno;
+    } else if (n <= writable) {
+        writer_index_ += n;
+    } else {
+        writer_index_ = buffer_.size();
+        write(extrabuf, n - writable);
+    }
+
+    return n;
 }
 
 void Buffer::makeSpace(int len) {
