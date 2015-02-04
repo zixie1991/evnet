@@ -213,15 +213,21 @@ int Buffer::readFd(int fd, int& _errno) {
 }
 
 void Buffer::makeSpace(int len) {
-    // move readable data to the front, make space inside buffer
-    int readable = readableBytes();
-    copy(begin() + reader_index_, begin() + writer_index_, begin());
-    reader_index_ = 0;
-    writer_index_ = readable;
-
-    assert(readable == readableBytes());
-
-    if (writableBytes() < len) {
+    //
+    // 如果buffer中可用的空间(可写字节数目+reader_index_之前的空间)>=len，则将readable
+    // data向前移；
+    // 否则，为buffer重新分配内存空间
+    //
+    if (reader_index_ + writableBytes() < len) {
         buffer_.resize(writer_index_ + len);
+    } else {
+        // move readable data to the front, make space inside buffer
+        int readable = readableBytes();
+        copy(begin() + reader_index_, begin() + writer_index_, begin());
+        reader_index_ = 0;
+        writer_index_ = readable;
+
+        assert(readable == readableBytes());
+
     }
 }
