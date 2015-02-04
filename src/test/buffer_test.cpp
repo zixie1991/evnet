@@ -68,7 +68,7 @@ TEST_F(BufferTest, testBufferGrow) {
 
     buf.read(str);
     EXPECT_EQ(buf.readableBytes(), 0);
-    EXPECT_EQ(buf.writableBytes(), 1350);
+    EXPECT_EQ(buf.writableBytes(), 1400);
 }
 
 TEST_F(BufferTest, testBufferInsideGrow) {
