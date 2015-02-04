@@ -6,13 +6,16 @@ class InetAddress;
 
 class Socket {
     public:
-        explicit Socket(int sockfd):
+        explicit Socket(int sockfd=-1):
             sockfd_(sockfd)
         {}
 
         ~Socket();
 
         int fd() const { return sockfd_; }
+
+        // generate socket
+        int generateSocket();
 
         /**
          * @brief abort if address in use
@@ -32,13 +35,28 @@ class Socket {
          */
         int accept(InetAddress& peeraddr);
 
-        // disable Nagle Aglorithm
-        void disableNagle();
+        int connect(InetAddress& peeraddr);
 
-        // disable Linger(取消延迟关闭)
-        void disableLinger();
+        void shutdownWrite();
 
-        // Enable/disable reuseAddr(短连接)
+        /**
+         * @brief set socket nonblock
+         */
+        void setNonblock();
+
+        /**
+         * @brief Enable/disable Nagle Aglorithm
+         */
+        void setNagle(bool on);
+
+        /**
+         * @breif Enable/disable Linger(取消延迟关闭)
+         */
+        void setLinger(bool on);
+
+        /**
+         * @brief Enable/disable reuseAddr(短连接)
+         */
         void setReuseAddr(bool on);
 
         /**
