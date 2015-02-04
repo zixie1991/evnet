@@ -1,4 +1,65 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+#include <boost/function.hpp>
+
+#include "eventloop.h"
+
+/**
+ * @brief A selectable I/O channel.
+ * this class 自始至终只属于一个EventLoop
+ * this class 自始至终只负责一个file descriptor的IO事件分发
+ * 但它并不拥有这个fd
+ * this file descriptor could be a socket,
+ * an eventfd, a timerfd, or a signalfd
+ */
+class Channel {
+    public:
+        typedef boost::function<void()> EventCallback;
+
+        Channel(EventLoop* loop, int fd);
+
+        void handleEvent();
+
+        void setReadCallback(const EventCallback& cb);
+        void setWriteCallback(const EventCallback& cb);
+        void setErrorCallback(const EventCallback& cb);
+
+        EventLoop* loop() {
+            return loop_;
+        }
+
+        int fd() const {
+            return fd_;
+        }
+
+        int events() {
+            return events_;
+        }
+
+        void set_events(int events) {
+            events_ = events;
+        }
+
+        // for Poller
+        int index() {
+            return index_;
+        }
+
+        void set_index(int index) {
+            index_ = index;
+        }
+
+    private:
+        EventLoop* loop_;
+        int fd_;
+        int events_;
+        // used by Poller
+        int index_;
+
+        EventCallback read_callback_;
+        EventCallback write_callback_;
+        EventCallback error_callback_;
+};
+
 #endif // CHANNEL_H_
