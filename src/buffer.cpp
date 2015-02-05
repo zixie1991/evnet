@@ -2,6 +2,7 @@
 
 #include <sys/uio.h>
 #include <errno.h>
+#include <endian.h>
 
 #include <string.h>
 
@@ -94,8 +95,7 @@ int Buffer::readInt64(int64_t& x) {
     int64_t n64 = 0;
     ::memcpy(&n64, begin() + reader_index_, int64_t_size);
     reader_index_ += int64_t_size;
-    // FIXME network to host
-    x = n64;
+    x = be64toh(n64);
 
     return int64_t_size;
 }
@@ -109,8 +109,7 @@ int Buffer::readInt32(int32_t& x) {
     int32_t n32 = 0;
     ::memcpy(&n32, begin() + reader_index_, int32_t_size);
     reader_index_ += int32_t_size;
-    // FIXME network to host
-    x = n32;
+    x = be32toh(n32);
 
     return int32_t_size;
 }
@@ -124,8 +123,7 @@ int Buffer::readInt16(int16_t& x) {
     int16_t n16 = 0;
     ::memcpy(&n16, begin() + reader_index_, sizeof(int16_t));
     reader_index_ += int16_t_size;
-    // FIXME network to host
-    x = n16;
+    x = be16toh(n16);
 
     return int16_t_size;
 }
@@ -160,20 +158,17 @@ void Buffer::write(const std::string& data) {
 }
 
 void Buffer::writeInt64(int64_t x) {
-    // FIXME host to network
-    int64_t n64 = x;
+    int64_t n64 = htobe64(x);
     write(&n64, sizeof(n64));
 }
 
 void Buffer::writeInt32(int32_t x) {
-    // FIXME host to network
-    int32_t n32 = x;
+    int32_t n32 = htobe32(x);
     write(&n32, sizeof(n32));
 }
 
 void Buffer::writeInt16(int16_t x) {
-    // FIXME host to network
-    int16_t n16 = x;
+    int16_t n16 = htobe16(x);
     write(&n16, sizeof(n16));
 }
 
