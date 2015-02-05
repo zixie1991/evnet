@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 #include "inetaddress.h"
+#include "log.h"
 
 Socket::~Socket() {
     ::close(sockfd_);
@@ -35,14 +36,14 @@ void Socket::bindAddress(const InetAddress& localaddr) {
     int ret = ::bind(sockfd_, (struct sockaddr *)&localaddr.addr(), sizeof(localaddr.addr()));
     
     if (-1 == ret) {
-        // bind a name to a socket error
+        log_error("bind a name to a socket error");
         abort();
     }
 }
 
 void Socket::listen() {
     if (::listen(sockfd_, SOMAXCONN) < 0) {
-        // listen for connection error
+        log_error("listen for connection error");
         abort();
     }
 }
@@ -62,18 +63,17 @@ void Socket::setNagle(bool on) {
     int val = on ? 0 : 1;
 
     if (::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (const void *)&val, sizeof(val)) < 0) {
-        // disable Nagle algorithm error
+        log_error("%s Nagle algorithm error", on ? "enable" : "disable");
     }
 }
 
 
 void Socket::setLinger(bool on) {
     struct linger ling = {0, 0};
-
-    ling.l_onoff = on ? 0: 1;
+    ling.l_onoff = on ? 1: 0;
 
     if (::setsockopt(sockfd_, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling)) < 0) {
-        // disable Linger error
+        log_error("%s Linger error", on ? "enable" : "disable");
     }
 }
 
@@ -81,7 +81,7 @@ void Socket::setReuseAddr(bool on) {
     int val = on ? 1 : 0;
 
     if (::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (const void *)&val, sizeof(val)) < 0) {
-        // enable reuse address error
+        log_error("%s reuse address error", on ? "enable" : "disable");
     }
 }
 
@@ -89,19 +89,19 @@ void Socket::setNonblock() {
     int flag;
 
     if ((flag = ::fcntl(sockfd_, F_GETFL, 0)) < 0) {
-        // access mode and the file status flags error
+        log_error("access mode and the file status flags error");
     }
 
     flag |= O_NONBLOCK;
 
     if (::fcntl(sockfd_, F_SETFL, flag) < 0) {
-        // set file status flags(O_NONBLOCK) error
+        log_error("set file status flags(O_NONBLOCK) error");
     }
 }
 
 void Socket::shutdownWrite() {
     if (::shutdown(sockfd_, SHUT_WR) < 0) {
-        // close socket on write error
+        log_error("close socket on write error");
     }
 }
 
