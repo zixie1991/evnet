@@ -16,8 +16,8 @@ class InetAddress {
         {
         }
 
-        std::string ip();
-        uint16_t port();
+        std::string ip() const;
+        uint16_t port() const;
 
         const struct sockaddr_in& addr() const {
             return addr_;

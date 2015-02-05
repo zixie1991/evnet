@@ -30,14 +30,14 @@ InetAddress::InetAddress(const std::string& ip, uint16_t port) {
     }
 }
 
-std::string InetAddress::ip() {
+std::string InetAddress::ip() const {
     char buf[32];
     ::inet_ntop(AF_INET, &addr_.sin_addr, buf, static_cast<socklen_t>(sizeof(addr_))); 
 
     return buf;
 }
 
-uint16_t InetAddress::port() {
+uint16_t InetAddress::port() const {
     return htobe16(addr_.sin_port); 
 }
 
