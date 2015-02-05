@@ -21,9 +21,17 @@ class Channel {
 
         void handleEvent();
 
-        void setReadCallback(const EventCallback& cb);
-        void setWriteCallback(const EventCallback& cb);
-        void setErrorCallback(const EventCallback& cb);
+        void set_read_callback(const EventCallback& cb) {
+            read_callback_ = cb;
+        }
+
+        void set_write_callback(const EventCallback& cb) {
+            write_callback_ = cb;
+        }
+
+        void set_error_callback(const EventCallback& cb) {
+            error_callback_ = cb;
+        }
 
         EventLoop* loop() {
             return loop_;
