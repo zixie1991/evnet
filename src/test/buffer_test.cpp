@@ -94,14 +94,16 @@ TEST_F(BufferTest, testBufferReadInt) {
     buf.write("HTTP1.1");
     EXPECT_EQ(buf.readableBytes(), 7);
     int16_t x16 = 0;
+    // declare: char* to host int16_t, then change by htobe16
     buf.readInt16(x16);
-    EXPECT_EQ(x16, 'T' * 256 + 'H');
+    EXPECT_EQ(x16, 'H' * 256 + 'T');
     int8_t x8 = 0;
     buf.readInt8(x8);
     EXPECT_EQ(x8, 'T');
     int32_t x32 = 0;
+    // declare: char* to host int32_t, then change by htobe32
     buf.readInt32(x32);
-    EXPECT_EQ(x32, '1' * 16777216 + '.' * 65536 + '1' * 256 + 'P');
+    EXPECT_EQ(x32, 'P' * 16777216 + '1' * 65536 + '.' * 256 + '1');
 
     buf.writeInt8(-1); // 1 byte
     buf.writeInt16(-1); // 2 bytes
