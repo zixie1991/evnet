@@ -1,14 +1,23 @@
-#ifndef _UTIL_LOG_H
-#define _UTIL_LOG_H
+#ifndef LOG_H_
+#define LOG_H_
+
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <limits.h>
+#include <pthread.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <limits.h>
-#include <pthread.h>
+#include <stdarg.h>
+
+#include <string>
+#include <sstream>
+
+using std::string;
+using std::stringstream;
+
 
 class Logger{
     public:
@@ -64,27 +73,19 @@ class Logger{
         int fatal(const char *fmt, ...);
 };
 
+extern Logger logger;
 
 int log_open(FILE *fp, int level=Logger::LEVEL_DEBUG, bool is_threadsafe=false);
 int log_open(const char *filename, int level=Logger::LEVEL_DEBUG,
     bool is_threadsafe=false, uint64_t rotate_size=0);
 int log_level();
 void set_log_level(int level);
-int log_write(const char *fmt, ...);
 
+#define log_trace(fmt, args...) logger.trace("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __FUNCTION__, ##args)
+#define log_debug(fmt, args...) logger.debug("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __FUNCTION__, ##args)
+#define log_info(fmt, args...) logger.info("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __FUNCTION__, ##args)
+#define log_warn(fmt, args...) logger.warn("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __FUNCTION__, ##args)
+#define log_error(fmt, args...) logger.error("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __FUNCTION__, ##args)
+#define log_fatal(fmt, args...) logger.fatal("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __FUNCTION__, ##args)
 
-#ifdef NDEBUG
-    #define log_trace(fmt, args...) do{}while(0)
-#else
-    #define log_trace(fmt, args...) \
-        log_write(Logger::LEVEL_TRACE, "%s(%d): " fmt, __FILE__, __LINE__, ##args)
-#endif
-
-int log_debug(const char *fmt, ...);
-int log_info(const char *fmt, ...);
-int log_warn(const char *fmt, ...);
-int log_error(const char *fmt, ...);
-int log_fatal(const char *fmt, ...);
-
-
-#endif // _LOG_H
+#endif // LOG_H_

@@ -10,7 +10,7 @@ using std::string;
 using std::stringstream;
 
 
-static Logger logger;
+Logger logger;
 
 int log_open(FILE *fp, int level, bool is_threadsafe){
     return logger.open(fp, level, is_threadsafe);
@@ -28,67 +28,6 @@ void set_log_level(int level){
     logger.set_level(level);
 }
 
-int log_write(int level, const char *fmt, ...){
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = logger.logv(level, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-string _formatter(const char *fmt) {
-    stringstream ss;
-    ss << __LINE__;
-    string line = "";
-    ss >> line;
-    string formatter = "";
-    formatter += __FILE__;
-    formatter += "(";
-    formatter += line;
-    formatter += "): ";
-    formatter += fmt;
-    return formatter.c_str();
-}
-
-int log_debug(const char *fmt, ...){
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = logger.logv(Logger::LEVEL_DEBUG, _formatter(fmt).c_str(), ap);
-    va_end(ap);
-    return ret;
-}
-
-int log_info(const char *fmt, ...){
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = logger.logv(Logger::LEVEL_INFO, _formatter(fmt).c_str(), ap);
-    va_end(ap);
-    return ret;
-}
-
-int log_warn(const char *fmt, ...){
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = logger.logv(Logger::LEVEL_WARN, _formatter(fmt).c_str(), ap);
-    va_end(ap);
-    return ret;
-}
-
-int log_error(const char *fmt, ...){
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = logger.logv(Logger::LEVEL_ERROR, _formatter(fmt).c_str(), ap);
-    va_end(ap);
-    return ret;
-}
-
-int log_fatal(const char *fmt, ...){
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = logger.logv(Logger::LEVEL_FATAL, _formatter(fmt).c_str(), ap);
-    va_end(ap);
-    return ret;
-}
 
 /*****/
 
