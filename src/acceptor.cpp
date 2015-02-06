@@ -10,9 +10,10 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listen_addr):
     listenning_(false)
 {
     socket_.bindAddress(listen_addr);
+    socket_.setReuseAddr(true);
 
     channel_.enableReadEvent();
-    channel_.set_read_callback(boost::bind(&Acceptor::handleRead, this));
+    channel_.set_read_callback(boost::bind(&Acceptor::handleReadEvent, this));
 }
 
 Acceptor::~Acceptor() {
@@ -28,7 +29,7 @@ void Acceptor::listen() {
     socket_.listen();
 }
 
-void Acceptor::handleRead() {
+void Acceptor::handleReadEvent() {
     InetAddress peeraddr;
 
     int connfd = socket_.accept(peeraddr);
