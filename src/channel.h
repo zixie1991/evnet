@@ -33,6 +33,12 @@ class Channel {
             error_callback_ = cb;
         }
 
+        void enableReadEvent();
+        void disableReadEvent();
+        void enableWriteEvent();
+        void disableWriteEvent();
+        void disableAllEvent();
+
         EventLoop* loop() {
             return loop_;
         }
@@ -59,6 +65,12 @@ class Channel {
         }
 
     private:
+        static const int kReadEvent;
+        static const int kWriteEvent;
+        static const int kNoneEvent;
+
+        void update();
+
         EventLoop* loop_;
         int fd_;
         int events_;

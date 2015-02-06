@@ -2,6 +2,8 @@
 
 #include <poll.h>
 
+#include "log.h"
+
 // On Linux, the constants of poll(2) and epoll(4)
 // are expected to be the same.
 // EPOLLIN == POLLIN
@@ -11,6 +13,10 @@
 // EPOLLERR == POLLERR
 // EPOLLHUP == POLLHUP
 
+const int Channel::kReadEvent = POLLIN | POLLPRI;
+const int Channel::kWriteEvent = POLLOUT;
+const int Channel::kNoneEvent = 0;
+
 Channel::Channel(EventLoop * loop, int fd):
     loop_(loop),
     fd_(fd),
@@ -19,10 +25,35 @@ Channel::Channel(EventLoop * loop, int fd):
 {
 }
 
+void Channel::enableReadEvent() {
+    events_ |= kReadEvent;
+    update();
+}
+
+void Channel::disableReadEvent() {
+    events_ &= ~kReadEvent;
+    update();
+}
+
+void Channel::enableWriteEvent() {
+    events_ |= kWriteEvent;
+    update();
+}
+
+void Channel::disableWriteEvent() {
+    events_ &= ~kWriteEvent;
+    update();
+}
+
+void Channel::disableAllEvent() {
+    events_ = kNoneEvent;
+    update();
+}
+
 void Channel::handleEvent() {
     // POLLNVAL Invalid request: fd not open
     if (events_ & POLLNVAL) {
-        //
+        log_warn("Channel handle event POLLNVAL");
     }
 
     // POLLERR Error condition
@@ -52,4 +83,8 @@ void Channel::handleEvent() {
             write_callback_();
         }
     }
+}
+
+void Channel::update() {
+    loop_->updateChannel(this);
 }
