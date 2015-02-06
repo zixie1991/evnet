@@ -11,6 +11,7 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listen_addr):
 {
     socket_.bindAddress(listen_addr);
 
+    channel_.enableReadEvent();
     channel_.set_read_callback(boost::bind(&Acceptor::handleRead, this));
 }
 
