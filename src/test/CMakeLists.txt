@@ -27,6 +27,9 @@ target_link_libraries(eventloop_test network pthread)
 add_executable(acceptor_test acceptor_test_.cpp)
 target_link_libraries(acceptor_test network pthread)
 
+add_executable(connection_test connection_test_.cpp)
+target_link_libraries(connection_test network pthread)
+
 #    Build each source file independently
 #foreach(source ${TOOLS_SOURCES})
     #get_filename_component(name ${source} NAME_WE)
