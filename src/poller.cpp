@@ -3,6 +3,7 @@
 #include <sys/epoll.h>
 
 #include "channel.h"
+#include "log.h"
 
 const int Poller::kInitEventSize;
 
@@ -25,15 +26,16 @@ int Poller::poll(int timeout_ms, std::vector<Channel*>& active_channels) {
     int num_events = ::epoll_wait(epollfd_, &*events_.begin(), static_cast<int>(events_.size()), timeout_ms);
 
     if (num_events > 0) {
+        log_trace("%d events happended", num_events);
         fillActiveChannels(num_events, active_channels);
 
         if (static_cast<size_t>(num_events) == events_.size()) {
             events_.resize(events_.size() * 2);
         }
     } else if (num_events == 0) {
-        // nothing happend
+        log_trace("nothing happend");
     } else {
-        // FIXME error
+        log_trace("Poller poll() error");
     }
 
     // FIXME meaningless retval
@@ -41,6 +43,7 @@ int Poller::poll(int timeout_ms, std::vector<Channel*>& active_channels) {
 }
 
 void Poller::updateChannel(Channel* channel) {
+    log_trace("fd=%d, index=%d, events=%d", channel->fd(), channel->index(), channel->events());
     int index = channel->index();
     
     if (kNew == index || kDeleted == index) {
