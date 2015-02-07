@@ -34,6 +34,12 @@ void message_callback(const Connection* connection, const char* buf, int len) {
             len, connection->name().c_str());
 }
 
+void close_callback(const Connection* connection) {
+    (void)connection;
+    log_info("close callback: remote peer[%s] closed connection", \
+            connection->name().c_str());
+}
+
 void new_connection(int sockfd, const InetAddress& peeraddr) {
     char buf[32];
     snprintf(buf, sizeof(buf), "#%d", g_next_connection_id);
@@ -48,18 +54,18 @@ void new_connection(int sockfd, const InetAddress& peeraddr) {
     g_connections[connection_name] = connection;
     connection->set_connection_callback(connection_callback);
     connection->set_message_callback(message_callback);
+    connection->set_close_callback(close_callback);
     connection->connectionEstablished();
 }
 
 int main() {
     set_log_level(Logger::LEVEL_TRACE);
     InetAddress listen_addr(12345);
-    EventLoop loop;
 
-    Acceptor acceptor(&loop, listen_addr);
+    Acceptor acceptor(&g_loop, listen_addr);
     acceptor.set_new_connection_callback_(new_connection);
     acceptor.listen();
 
-    loop.loop();
+    g_loop.loop();
     return 0;
 }
