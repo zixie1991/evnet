@@ -18,6 +18,7 @@ class Connection {
         typedef boost::function<void(const Connection*)> ConnectionCallback;
         typedef boost::function<void(const Connection*, const char* data, \
                 int len)> MessageCallback;
+        typedef boost::function<void(const Connection*)> CloseCallback;
 
         Connection(EventLoop* loop, std::string name, int sockfd, const \
                 InetAddress& peeraddr);
@@ -35,11 +36,19 @@ class Connection {
         // should be called only once
         void connectionEstablished();
 
+        EventLoop* loop() {
+            return loop_;
+        }
+
         void set_connection_callback(const ConnectionCallback& cb);
         void set_message_callback(const MessageCallback& cb);
+        void set_close_callback(const CloseCallback& cb);
 
     private:
         void handleReadEvent();
+        void handleWriteEvent();
+        void handleCloseEvent();
+        void handleErrorEvent();
 
         EventLoop *loop_;
 
@@ -50,6 +59,7 @@ class Connection {
 
         ConnectionCallback connection_callback_;
         MessageCallback message_callback_;
+        CloseCallback close_callback_;
 };
 
 #endif // CONNECTION_H_
