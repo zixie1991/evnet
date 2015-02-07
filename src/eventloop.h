@@ -22,6 +22,7 @@ class EventLoop {
 
         // internal use only
         void updateChannel(Channel* channel);
+        void removeChannel(Channel* channel);
 
     private:
         bool looping_;
