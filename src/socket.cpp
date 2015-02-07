@@ -17,6 +17,7 @@
 #include "log.h"
 
 Socket::~Socket() {
+    log_debug("Socket desctrutor: close socket");
     ::close(sockfd_);
 }
 
@@ -68,6 +69,7 @@ void Socket::setNagle(bool on) {
 }
 
 
+//使用SO_LINGER，close后不进入TIME_WAIT状态
 void Socket::setLinger(bool on) {
     struct linger ling = {0, 0};
     ling.l_onoff = on ? 1: 0;
