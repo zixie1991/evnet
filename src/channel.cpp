@@ -50,7 +50,19 @@ void Channel::disableAllEvent() {
     update();
 }
 
+bool Channel::hasWriteEvent() {
+    return events_ & kWriteEvent;
+}
+
 void Channel::handleEvent() {
+    // POLLHUP Hang up happened on the associated file descriptor.
+    if ((events_ & POLLHUP) && !(events_ & POLLIN)) {
+        log_warn("Channel handle event EPOLLHUP");
+        if (close_callback_) {
+            close_callback_();
+        }
+    }
+
     // POLLNVAL Invalid request: fd not open
     if (events_ & POLLNVAL) {
         log_warn("Channel handle event POLLNVAL");

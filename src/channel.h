@@ -29,6 +29,10 @@ class Channel {
             write_callback_ = cb;
         }
 
+        void set_close_callback(const EventCallback& cb) {
+            close_callback_ = cb;
+        }
+
         void set_error_callback(const EventCallback& cb) {
             error_callback_ = cb;
         }
@@ -38,6 +42,8 @@ class Channel {
         void enableWriteEvent();
         void disableWriteEvent();
         void disableAllEvent();
+
+        bool hasWriteEvent();
 
         EventLoop* loop() {
             return loop_;
@@ -79,6 +85,7 @@ class Channel {
 
         EventCallback read_callback_;
         EventCallback write_callback_;
+        EventCallback close_callback_;
         EventCallback error_callback_;
 };
 
