@@ -41,6 +41,7 @@ class Poller {
         void update(int operation, Channel* channel);
 
         EventLoop* owner_loop_;
+        // sorted map
         std::map<int, Channel*> channels_;
 
         // epoll

@@ -8,8 +8,6 @@
 const int Poller::kInitEventSize;
 
 const int kNew = -1;
-const int kAdded = 1;
-const int kDeleted = 2;
 
 Poller::Poller(EventLoop* loop):
     owner_loop_(loop),
@@ -24,6 +22,7 @@ Poller::~Poller() {
 
 int Poller::poll(int timeout_ms, std::vector<Channel*>& active_channels) {
     int num_events = ::epoll_wait(epollfd_, &*events_.begin(), static_cast<int>(events_.size()), timeout_ms);
+    log_trace("%d channels", channels_.size());
 
     if (num_events > 0) {
         log_trace("%d events happended", num_events);
@@ -46,17 +45,17 @@ void Poller::updateChannel(Channel* channel) {
     log_trace("fd=%d, index=%d, events=%d", channel->fd(), channel->index(), channel->events());
     int index = channel->index();
     
-    if (kNew == index || kDeleted == index) {
+    if (kNew == index) {
         // create new one, add with EPOLL_CTL_ADD
         int fd = channel->fd();
 
-        if (kNew == index) {
-            channels_[fd] = channel;
-        } else {
-            // 
-        }
+        log_trace("fd=%d, index=%d", channel->fd(), channel->index());
+        log_trace("before event add: %d channels", channels_.size());
+        channels_[fd] = channel;
+        log_trace("after event add: %d channels", channels_.size());
 
-        channel->set_index(kAdded);
+        int new_index = static_cast<int>(events_.size());
+        channel->set_index(new_index);
         update(EPOLL_CTL_ADD, channel);
     } else {
         // update existed one with EPOLL_CTL_MOD/EPOLL_CTL_DEL
@@ -75,13 +74,10 @@ void Poller::removeChannel(Channel* channel) {
     int index = channel->index();
 
     size_t n = channels_.erase(fd);
+    (void)n;
     assert(1 == n);
 
-    if (kAdded == index) {
-        update(EPOLL_CTL_DEL, channel);
-    }
-
-    channel->set_index(kNew);
+    (void)index;
 }
 
 void Poller::fillActiveChannels(int num_events, std::vector<Channel*>& active_channels) {
