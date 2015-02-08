@@ -32,6 +32,9 @@ target_link_libraries(connection_test network pthread)
 
 add_executable(connector_test connector_test_.cpp)
 target_link_libraries(connector_test network pthread)
+
+add_executable(tcpserver_test tcpserver_test_.cpp)
+target_link_libraries(tcpserver_test network pthread)
 #    Build each source file independently
 #foreach(source ${TOOLS_SOURCES})
     #get_filename_component(name ${source} NAME_WE)
