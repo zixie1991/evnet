@@ -22,5 +22,4 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 ###    Subdirectories    ##########################################################################
 add_subdirectory(src)
 add_subdirectory(tools)
-
-
+add_subdirectory(examples/echo)
