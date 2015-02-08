@@ -9,9 +9,9 @@ using boost::bind;
 using boost::scoped_ptr;
 using boost::shared_ptr;
 
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& server_addr):
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& listen_addr):
     loop_(loop),
-    acceptor_(new Acceptor(loop, server_addr)),
+    acceptor_(new Acceptor(loop, listen_addr)),
     started_(false),
     next_connection_id_(1)
 {

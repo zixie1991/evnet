@@ -19,6 +19,7 @@ Connection::Connection(EventLoop* loop, std::string name, int sockfd, const Inet
 {
     log_debug("Connection constructor: name:%s, fd:%d", name_.c_str(), socket_->fd());
     socket_->setNonblock();
+    socket_->setNagle(false);
     socket_->setLinger(true);
     socket_->setReuseAddr(true);
     socket_->setKeepAlive(true);
@@ -36,6 +37,10 @@ Connection::~Connection() {
 void Connection::connectionEstablished() {
     channel_->enableReadEvent();
     connection_callback_(shared_from_this());
+}
+
+void Connection::connectionStreamed() {
+    channel_->enableWriteEvent();
 }
 
 void Connection::send(const void* message, int len) {
@@ -74,6 +79,8 @@ void Connection::handleReadEvent() {
 
 void Connection::handleWriteEvent() {
     if (channel_->hasWriteEvent()) {
+        // just from test
+        send("hello, world", 12);
     }
 }
 

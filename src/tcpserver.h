@@ -15,7 +15,7 @@ class Acceptor;
 
 class TcpServer {
     public:
-        TcpServer(EventLoop* loop, const InetAddress& server_addr);
+        TcpServer(EventLoop* loop, const InetAddress& listen_addr);
         ~TcpServer();
 
         /**
