@@ -35,7 +35,7 @@ Connection::~Connection() {
 
 void Connection::connectionEstablished() {
     channel_->enableReadEvent();
-    connection_callback_(this);
+    connection_callback_(shared_from_this());
 }
 
 void Connection::send(const void* message, int len) {
@@ -64,10 +64,9 @@ void Connection::handleReadEvent() {
     if (n > 0) {
         buf[n] = '\0';
         log_debug("handle read event: received %d bytes: %s", n, buf);
-        message_callback_(this, buf, n);
+        message_callback_(shared_from_this(), buf, n);
     } else if (0 == n) {
         handleCloseEvent();
-        loop_->removeChannel(channel_.get());
     } else {
         handleErrorEvent();
     }
@@ -81,7 +80,7 @@ void Connection::handleWriteEvent() {
 void Connection::handleCloseEvent() {
     channel_->disableAllEvent();
 
-    close_callback_(this);
+    close_callback_(shared_from_this());
 }
 
 void Connection::handleErrorEvent() {

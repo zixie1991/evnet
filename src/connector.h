@@ -5,6 +5,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include "inetaddress.h"
+#include "connection.h"
 
 class Channel;
 

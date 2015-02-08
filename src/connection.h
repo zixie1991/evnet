@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
@@ -13,12 +14,12 @@ class EventLoop;
 class Socket;
 class Channel;
 
-class Connection {
+class Connection: public boost::enable_shared_from_this<Connection> {
     public:
-        typedef boost::function<void(const Connection*)> ConnectionCallback;
-        typedef boost::function<void(const Connection*, const char* data, \
+        typedef boost::function<void(const boost::shared_ptr<Connection>&)> ConnectionCallback;
+        typedef boost::function<void(const boost::shared_ptr<Connection>&, const char* data, \
                 int len)> MessageCallback;
-        typedef boost::function<void(const Connection*)> CloseCallback;
+        typedef boost::function<void(const boost::shared_ptr<Connection>&)> CloseCallback;
 
         Connection(EventLoop* loop, std::string name, int sockfd, const \
                 InetAddress& peeraddr);

@@ -19,19 +19,19 @@ EventLoop g_loop;
 map<string, shared_ptr<Connection> > g_connections;
 int g_next_connection_id = 1;
 
-void connection_callback(const Connection* connection) {
+void connection_callback(const shared_ptr<Connection>& connection) {
     log_info("connection callback: new connection [%s] from %s:%d", \
             connection->name().c_str(), connection->peeraddr().ip().c_str(), \
             connection->peeraddr().port());
 }
 
-void message_callback(const Connection* connection, const char* buf, int len) {
+void message_callback(const shared_ptr<Connection>& connection, const char* buf, int len) {
     (void)buf;
     log_info("message callback: received %d bytes from connection [%s]", \
             len, connection->name().c_str());
 }
 
-void close_callback(const Connection* connection) {
+void close_callback(const shared_ptr<Connection>& connection) {
     log_info("close callback: remote peer[%s] closed connection", \
             connection->name().c_str());
 
