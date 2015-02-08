@@ -2,43 +2,41 @@
 #define CONNECTOR_H_
 
 #include <boost/function.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include "inetaddress.h"
 
-class EventLoop;
+class Channel;
 
 /**
  * @brief 主动发起连接
  */
 class Connector {
     public:
-        typedef boost::function<void (int sockfd)> ConnectionCallback;
+        typedef boost::function<void (int sockfd, const InetAddress&)> NewConnectionCallback;
 
-        Connector(EventLoop* loop, const InetAddress& server_addr);
+        Connector(const InetAddress& server_addr);
         ~Connector();
 
         void start();
         void restart();
         void stop();
 
-        const InetAddress7 server_addr() const {
+        const InetAddress& server_addr() const {
             return server_addr_;
         }
 
-        void set_connection_callback(const ConnectionCallback& cb);
+        void set_new_connection_callback(const NewConnectionCallback& cb);
 
     private:
         void connect();
-        void connecting(int sockfd);
+        void connecting();
 
-        void handleWriteEvent();
-        void handleErrorEvent();
-
-        EventLoop* loop_;
         InetAddress server_addr_;
+        int sockfd_;
         bool connect_;
 
-        ConnectionCallback connection_callback_;
+        NewConnectionCallback new_connection_callback_;
 };
 
 #endif // CONNECTOR_H_
