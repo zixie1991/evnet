@@ -35,7 +35,6 @@ void message_callback(const Connection* connection, const char* buf, int len) {
 }
 
 void close_callback(const Connection* connection) {
-    (void)connection;
     log_info("close callback: remote peer[%s] closed connection", \
             connection->name().c_str());
 }
