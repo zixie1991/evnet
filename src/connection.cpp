@@ -38,6 +38,12 @@ void Connection::connectionEstablished() {
     connection_callback_(this);
 }
 
+void Connection::send(const void* message, int len) {
+    int n;
+    n = ::write(socket_->fd(), message, len);
+    (void)n;
+}
+
 void Connection::set_connection_callback(const ConnectionCallback& cb) {
     connection_callback_ = cb;
 }
@@ -61,6 +67,7 @@ void Connection::handleReadEvent() {
         message_callback_(this, buf, n);
     } else if (0 == n) {
         handleCloseEvent();
+        loop_->removeChannel(channel_.get());
     } else {
         handleErrorEvent();
     }

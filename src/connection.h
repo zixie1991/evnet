@@ -40,6 +40,8 @@ class Connection {
             return loop_;
         }
 
+        void send(const void* message, int len);
+
         void set_connection_callback(const ConnectionCallback& cb);
         void set_message_callback(const MessageCallback& cb);
         void set_close_callback(const CloseCallback& cb);
