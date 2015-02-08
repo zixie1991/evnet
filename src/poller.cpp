@@ -78,6 +78,15 @@ void Poller::removeChannel(Channel* channel) {
     assert(1 == n);
 
     (void)index;
+    if (index == static_cast<int>(events_.size()) - 1) {
+        events_.pop_back();
+    } else {
+        int channel_at_end = static_cast<Channel*>(events_.back().data.ptr)->fd();
+        iter_swap(events_.begin() + index, events_.end() - 1);
+
+        channels_[channel_at_end]->set_index(index);
+        events_.pop_back();
+    }
 }
 
 void Poller::fillActiveChannels(int num_events, std::vector<Channel*>& active_channels) {
