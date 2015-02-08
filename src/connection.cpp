@@ -35,7 +35,7 @@ Connection::~Connection() {
 
 void Connection::connectionEstablished() {
     channel_->enableReadEvent();
-    //connection_callback_(this);
+    connection_callback_(this);
 }
 
 void Connection::set_connection_callback(const ConnectionCallback& cb) {
@@ -61,8 +61,6 @@ void Connection::handleReadEvent() {
         message_callback_(this, buf, n);
     } else if (0 == n) {
         handleCloseEvent();
-
-        loop_->removeChannel(channel_.get());
     } else {
         handleErrorEvent();
     }
