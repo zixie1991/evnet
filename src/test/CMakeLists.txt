@@ -11,14 +11,13 @@ set(TEST_MAIN network_test_main.cpp)     # main test file (with main function)
 #set(TEST_DATA_FILE ${CMAKE_CURRENT_SOURCE_DIR}/test_data/jpg.jpg)
 
 #    Find all source files
-file(GLOB_RECURSE TOOLS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*_test.cpp)
 
 include_directories(
     ${Network_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(network_test_main ${TOOLS_SOURCES})
+add_executable(network_test_main network_test_main.cpp buffer_test.cpp)
 target_link_libraries(network_test_main network gtest pthread)
 
 add_executable(eventloop_test eventloop_test_.cpp)
