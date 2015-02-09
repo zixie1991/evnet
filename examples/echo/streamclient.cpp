@@ -13,6 +13,7 @@
 #include "inetaddress.h"
 #include "connector.h"
 #include "connection.h"
+#include "buffer.h"
 #include "log.h"
 
 using std::map;
@@ -33,7 +34,7 @@ class StreamClient {
     private:
         void newConnection(int sockfd, const InetAddress& peeraddr);
         void onConnection(const shared_ptr<Connection>& connection);
-        void onMessage(const shared_ptr<Connection>& connection, const char* data, int len);
+        void onMessage(const shared_ptr<Connection>& connection, Buffer& buffer);
         void removeConnection(const shared_ptr<Connection>& connection);
 
         EventLoop *loop_;
@@ -104,7 +105,7 @@ void StreamClient::newConnection(int sockfd, const InetAddress& peeraddr) {
                 sockfd, peeraddr));
     connections_[connection_name] = connection;
     connection->set_connection_callback(bind(&StreamClient::onConnection, this, _1));
-    connection->set_message_callback(bind(&StreamClient::onMessage, this, _1, _2, _3));
+    connection->set_message_callback(bind(&StreamClient::onMessage, this, _1, _2));
     connection->set_close_callback(bind(&StreamClient::removeConnection, this, _1));
     connection->connectionEstablished();
 }
@@ -114,10 +115,10 @@ void StreamClient::onConnection(const shared_ptr<Connection>& connection) {
     connection->connectionStreamed();
 }
 
-void StreamClient::onMessage(const shared_ptr<Connection>& connection, const char* data, int len) {
-    (void)data;
+void StreamClient::onMessage(const shared_ptr<Connection>& connection, Buffer& buffer) {
+    (void)buffer;
     log_info("message callback: received %d bytes from connection [%s]", \
-            len, connection->name().c_str());
+            buffer.readableBytes(), connection->name().c_str());
 }
 
 void StreamClient::removeConnection(const shared_ptr<Connection>& connection) {

@@ -10,6 +10,7 @@
 #include "inetaddress.h"
 #include "connection.h"
 #include "tcpserver.h"
+#include "buffer.h"
 #include "log.h"
 
 using boost::shared_ptr;
@@ -24,7 +25,7 @@ class EchoServer {
 
     private:
         void onConnection(const shared_ptr<Connection>& connection);
-        void onMessage(const shared_ptr<Connection>& connection, const char* data, int len);
+        void onMessage(const shared_ptr<Connection>& connection, Buffer& buffer);
 
         TcpServer server_;
 };
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    set_log_level(Logger::LEVEL_ERROR);
+    set_log_level(Logger::LEVEL_TRACE);
     uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
     InetAddress listen_addr(port);
     EventLoop loop;
@@ -50,7 +51,7 @@ EchoServer::EchoServer(EventLoop* loop, const InetAddress& listen_addr):
     server_(loop, listen_addr)
 {
     server_.set_connection_callback(bind(&EchoServer::onConnection, this, _1));
-    server_.set_message_callback(bind(&EchoServer::onMessage, this, _1, _2, _3));
+    server_.set_message_callback(bind(&EchoServer::onMessage, this, _1, _2));
 }
 
 EchoServer::~EchoServer() {
@@ -67,9 +68,11 @@ void EchoServer::onConnection(const shared_ptr<Connection>& connection) {
             connection->peeraddr().port());
 }
 
-void EchoServer::onMessage(const shared_ptr<Connection>& connection, const char* data, int len) {
+void EchoServer::onMessage(const shared_ptr<Connection>& connection, Buffer& buffer) {
     log_info("message callback: received %d bytes from connection [%s]", \
-            len, connection->name().c_str());
+            buffer.readableBytes(), connection->name().c_str());
 
-    connection->send(data, len);
+    string message;
+    buffer.read(message);
+    connection->send(message.c_str(), message.size());
 }

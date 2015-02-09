@@ -44,9 +44,27 @@ void Connection::connectionStreamed() {
 }
 
 void Connection::send(const void* message, int len) {
-    int n;
-    n = ::write(socket_->fd(), message, len);
-    (void)n;
+    int n = 0;
+    if (!channel_->hasWriteEvent() && 0 == output_buffer_.readableBytes()) {
+        n = ::write(socket_->fd(), message, len);
+        (void)n;
+
+        if (n >= 0) {
+            // FIXME write data complete.
+        } else {
+            n = 0;
+            if (EWOULDBLOCK != errno && EAGAIN != errno) {
+                log_error("Connection send error");
+            }
+        }
+    }
+
+    if (n < len) {
+        output_buffer_.write(static_cast<const char *>(message) + n, len - n);
+        if (!channel_->hasWriteEvent()) {
+            channel_->enableWriteEvent();
+        }
+    }
 }
 
 void Connection::set_connection_callback(const ConnectionCallback& cb) {
@@ -62,14 +80,13 @@ void Connection::set_close_callback(const CloseCallback& cb) {
 }
 
 void Connection::handleReadEvent() {
-    char buf[4096];
     int n = 0;
-    n = ::read(socket_->fd(), buf, sizeof(buf) - 1);
+    int _errno;
+    n = input_buffer_.readFd(socket_->fd(), _errno);
 
     if (n > 0) {
-        buf[n] = '\0';
-        log_debug("handle read event: received %d bytes: %s", n, buf);
-        message_callback_(shared_from_this(), buf, n);
+        log_debug("handle read event: received %d bytes", n);
+        message_callback_(shared_from_this(), input_buffer_);
     } else if (0 == n) {
         handleCloseEvent();
     } else {
@@ -79,11 +96,22 @@ void Connection::handleReadEvent() {
 
 void Connection::handleWriteEvent() {
     if (channel_->hasWriteEvent()) {
-        // just from test
-        char buf[65536];
-        memset(buf, 'a', sizeof(buf) - 1);
-        buf[sizeof(buf) - 1] = 0;
-        send(buf, strlen(buf));
+        int n = 0;
+        n = ::write(socket_->fd(), output_buffer_.peek(), output_buffer_.readableBytes());
+        int readable = output_buffer_.readableBytes();
+
+        if (n > 0) {
+            output_buffer_.retrieve(n);
+
+            if (0 == output_buffer_.readableBytes()) {
+                channel_->disableWriteEvent();
+            }
+        } else {
+
+            if (EWOULDBLOCK != errno && EAGAIN != errno) {
+                log_error("Connection handle write error");
+            }
+        }
     }
 }
 

@@ -10,6 +10,7 @@
 #include "inetaddress.h"
 #include "connector.h"
 #include "connection.h"
+#include "buffer.h"
 #include "log.h"
 
 using std::map;
@@ -25,10 +26,10 @@ void connection_callback(const shared_ptr<Connection>& connection) {
             connection->peeraddr().port());
 }
 
-void message_callback(const shared_ptr<Connection>& connection, const char* buf, int len) {
-    (void)buf;
+void message_callback(const shared_ptr<Connection>& connection, Buffer& buffer) {
+    (void)buffer;
     log_info("message callback: received %d bytes from connection [%s]", \
-            len, connection->name().c_str());
+            buffer.readableBytes(), connection->name().c_str());
 }
 
 void close_callback(const shared_ptr<Connection>& connection) {

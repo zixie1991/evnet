@@ -13,6 +13,7 @@
 #include "inetaddress.h"
 #include "connector.h"
 #include "connection.h"
+#include "buffer.h"
 #include "log.h"
 
 using std::map;
@@ -32,7 +33,7 @@ class EchoClient {
     private:
         void newConnection(int sockfd, const InetAddress& peeraddr);
         void onConnection(const shared_ptr<Connection>& connection);
-        void onMessage(const shared_ptr<Connection>& connection, const char* data, int len);
+        void onMessage(const shared_ptr<Connection>& connection, Buffer& buffer);
         void removeConnection(const shared_ptr<Connection>& connection);
 
         EventLoop *loop_;
@@ -102,21 +103,23 @@ void EchoClient::newConnection(int sockfd, const InetAddress& peeraddr) {
                 sockfd, peeraddr));
     connections_[connection_name] = connection;
     connection->set_connection_callback(bind(&EchoClient::onConnection, this, _1));
-    connection->set_message_callback(bind(&EchoClient::onMessage, this, _1, _2, _3));
+    connection->set_message_callback(bind(&EchoClient::onMessage, this, _1, _2));
     connection->set_close_callback(bind(&EchoClient::removeConnection, this, _1));
     connection->connectionEstablished();
 }
 
 void EchoClient::onConnection(const shared_ptr<Connection>& connection) {
     // send message "hello, world"
-    char buf[10];
+    char buf[65536];
     memset(buf, 'a', sizeof(buf) - 1);
     buf[sizeof(buf) - 1] = 0;
     connection->send(buf, strlen(buf));
 }
 
-void EchoClient::onMessage(const shared_ptr<Connection>& connection, const char* data, int len) {
-    connection->send(data, len);
+void EchoClient::onMessage(const shared_ptr<Connection>& connection, Buffer& buffer) {
+    string message;
+    buffer.read(message);
+    connection->send(message.c_str(), message.size());
 }
 
 void EchoClient::removeConnection(const shared_ptr<Connection>& connection) {

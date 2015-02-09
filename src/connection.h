@@ -18,8 +18,8 @@ class Channel;
 class Connection: public boost::enable_shared_from_this<Connection> {
     public:
         typedef boost::function<void(const boost::shared_ptr<Connection>&)> ConnectionCallback;
-        typedef boost::function<void(const boost::shared_ptr<Connection>&, const char* data, \
-                int len)> MessageCallback;
+        typedef boost::function<void(const boost::shared_ptr<Connection>&, \
+                Buffer& buffer)> MessageCallback;
         typedef boost::function<void(const boost::shared_ptr<Connection>&)> CloseCallback;
 
         Connection(EventLoop* loop, std::string name, int sockfd, const \
