@@ -110,6 +110,12 @@ class Buffer {
          */
         int readFd(int fd, int& _errno);
 
+        /**
+         * @brief just move reader_index_, not read data
+         */
+        int retrieve(int len);
+
+        char* peek();
     private:
         /**
          * @brief buffer_首地址

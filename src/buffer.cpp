@@ -86,6 +86,19 @@ int Buffer::read(std::string& data) {
     return ret;
 }
 
+char* Buffer::peek() {
+    return begin() + reader_index_;
+}
+
+int Buffer::retrieve(int len) {
+    if (readableBytes() < len) {
+        return -1;
+    }
+
+    reader_index_ += len;
+    return len;
+}
+
 int Buffer::readInt64(int64_t& x) {
     int int64_t_size = static_cast<int>(sizeof(int64_t));
     if (readableBytes() < int64_t_size) {
