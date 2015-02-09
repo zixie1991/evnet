@@ -109,7 +109,10 @@ void EchoClient::newConnection(int sockfd, const InetAddress& peeraddr) {
 
 void EchoClient::onConnection(const shared_ptr<Connection>& connection) {
     // send message "hello, world"
-    connection->send("hello, world", 12);
+    char buf[10];
+    memset(buf, 'a', sizeof(buf) - 1);
+    buf[sizeof(buf) - 1] = 0;
+    connection->send(buf, strlen(buf));
 }
 
 void EchoClient::onMessage(const shared_ptr<Connection>& connection, const char* data, int len) {
