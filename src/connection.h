@@ -9,6 +9,7 @@
 #include <boost/function.hpp>
 
 #include "inetaddress.h"
+#include "buffer.h"
 
 class EventLoop;
 class Socket;
@@ -61,6 +62,10 @@ class Connection: public boost::enable_shared_from_this<Connection> {
         InetAddress peeraddr_;
         boost::scoped_ptr<Socket> socket_;
         boost::scoped_ptr<Channel> channel_;
+
+        // buffer.
+        Buffer input_buffer_;
+        Buffer output_buffer_;
 
         ConnectionCallback connection_callback_;
         MessageCallback message_callback_;

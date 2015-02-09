@@ -80,7 +80,10 @@ void Connection::handleReadEvent() {
 void Connection::handleWriteEvent() {
     if (channel_->hasWriteEvent()) {
         // just from test
-        send("hello, world", 12);
+        char buf[65536];
+        memset(buf, 'a', sizeof(buf) - 1);
+        buf[sizeof(buf) - 1] = 0;
+        send(buf, strlen(buf));
     }
 }
 
