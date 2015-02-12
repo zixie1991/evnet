@@ -45,6 +45,9 @@ void Connection::connectionStreamed() {
 
 void Connection::send(const void* message, int len) {
     int n = 0;
+    bool fault_error = false;
+
+    // if no thing on output buffer, try write directly.
     if (!channel_->hasWriteEvent() && 0 == output_buffer_.readableBytes()) {
         n = ::write(socket_->fd(), message, len);
         (void)n;
@@ -55,11 +58,14 @@ void Connection::send(const void* message, int len) {
             n = 0;
             if (EWOULDBLOCK != errno && EAGAIN != errno) {
                 log_error("Connection send error");
+                if (EPIPE == errno || ECONNRESET == errno) {
+                    fault_error = true;
+                }
             }
         }
     }
 
-    if (n < len) {
+    if (!fault_error && n < len) {
         output_buffer_.write(static_cast<const char *>(message) + n, len - n);
         if (!channel_->hasWriteEvent()) {
             channel_->enableWriteEvent();
@@ -99,6 +105,7 @@ void Connection::handleWriteEvent() {
         int n = 0;
         n = ::write(socket_->fd(), output_buffer_.peek(), output_buffer_.readableBytes());
         int readable = output_buffer_.readableBytes();
+        (void)readable;
 
         if (n > 0) {
             output_buffer_.retrieve(n);
