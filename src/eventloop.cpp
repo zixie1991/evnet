@@ -2,6 +2,7 @@
 
 #include "poller.h"
 #include "channel.h"
+#include "log.h"
 
 const int kPollTimeOutMs = 10000;
 
@@ -31,6 +32,7 @@ void EventLoop::loop() {
 
     }
 
+    log_warn("EventLoop stop looping");
     looping_ = false;
 }
 
