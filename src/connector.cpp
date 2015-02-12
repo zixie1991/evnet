@@ -1,5 +1,6 @@
 #include "connector.h"
 
+#include <fcntl.h>
 #include <errno.h>
 
 #include <boost/bind.hpp>
