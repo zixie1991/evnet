@@ -1,5 +1,7 @@
 #include "acceptor.h"
 
+#include <fcntl.h>
+
 #include <boost/bind.hpp>
 
 #include "inetaddress.h"
@@ -7,7 +9,8 @@
 Acceptor::Acceptor(EventLoop* loop, const InetAddress& listen_addr):
     loop_(loop),
     channel_(loop, socket_.generateSocket()),
-    listenning_(false)
+    listenning_(false),
+    dummy_fd_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     socket_.bindAddress(listen_addr);
     socket_.setReuseAddr(true);
@@ -39,5 +42,14 @@ void Acceptor::handleReadEvent() {
         } else {
             ::close(connfd);
         }
-    } 
+    } else {
+        // Read section named "The special problem of
+        // accept()ing when you can't" in libev's doc.
+        // By Marc Lehmann, author of libev.
+        // 防止EMFILE导致服务器端CPU空转
+        ::close(dummy_fd_);
+        dummy_fd_ = ::accept(socket_.fd(), NULL, NULL);
+        ::close(dummy_fd_);
+        dummy_fd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+    }
 }

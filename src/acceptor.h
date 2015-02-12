@@ -32,6 +32,9 @@ class Acceptor {
         Channel channel_;
         bool listenning_;
 
+        // EMFILE errno
+        int dummy_fd_;
+
         NewConnectionCallback new_connection_callback_;
 };
 
