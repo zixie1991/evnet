@@ -1,3 +1,5 @@
+#include <signal.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,13 +32,20 @@ class EchoServer {
         TcpServer server_;
 };
 
+void sig_pipe(int signo) {
+    // ignore SIGPIPE
+    (void)signo;
+    return ;
+}
+
 int main(int argc, char *argv[]) {
     if (2 != argc) {
         fprintf(stderr, "Usage: %s <port>\n", argv[0]);
         exit(0);
     }
 
-    set_log_level(Logger::LEVEL_TRACE);
+    set_log_level(Logger::LEVEL_WARN);
+    signal(SIGPIPE, sig_pipe);
     uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
     InetAddress listen_addr(port);
     EventLoop loop;
