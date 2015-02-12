@@ -28,7 +28,7 @@ class EchoClient {
         EchoClient(EventLoop* loop, InetAddress server_addr);
         ~EchoClient();
 
-        void start(int num_clients);
+        void start(int num_clients, int data_size);
 
     private:
         void newConnection(int sockfd, const InetAddress& peeraddr);
@@ -43,23 +43,26 @@ class EchoClient {
         int next_connection_id_;
     
         bool started_;
+        char *buf;
 };
 
 int main(int argc, char *argv[]) {
-    if (3 != argc) {
-        fprintf(stderr, "Usage: %s <ip> <port>\n", argv[0]);
+    if (5 != argc) {
+        fprintf(stderr, "Usage: %s <ip> <port> <num_clients> <data_size>\n", argv[0]);
         exit(0);
     }
 
-    set_log_level(Logger::LEVEL_ERROR);
+    set_log_level(Logger::LEVEL_WARN);
     string ip(argv[1]);
     uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
+    int num_clients = atoi(argv[3]);
+    int data_size = atoi(argv[4]);
     InetAddress server_addr(ip, port);
 
     EventLoop loop;
     EchoClient echo_client(&loop, server_addr);
 
-    echo_client.start(1000);
+    echo_client.start(num_clients, data_size);
 
     return 0;
 }
@@ -74,15 +77,20 @@ EchoClient::EchoClient(EventLoop* loop, InetAddress server_addr):
 }
 
 EchoClient::~EchoClient() {
-
+    if (NULL != buf) {
+        delete buf;
+    }
 }
 
-void EchoClient::start(int num_clients) {
+void EchoClient::start(int num_clients, int data_size) {
     if (started_) {
         return ;
     }
 
     started_ = true;
+    buf = new char[data_size + 1];
+    memset(buf, 'a', data_size);
+    buf[data_size] = '\0';
     for (int i = 0; i < num_clients; i++) {
         connector_->start();
     }
@@ -110,9 +118,6 @@ void EchoClient::newConnection(int sockfd, const InetAddress& peeraddr) {
 
 void EchoClient::onConnection(const shared_ptr<Connection>& connection) {
     // send message "hello, world"
-    char buf[65536];
-    memset(buf, 'a', sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = 0;
     connection->send(buf, strlen(buf));
 }
 
