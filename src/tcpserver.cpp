@@ -53,15 +53,14 @@ void TcpServer::removeConnection(const boost::shared_ptr<Connection>& connection
     log_info("close callback: remote peer[%s] closed connection", \
             connection->name().c_str());
 
-    log_debug("before connections_.erase(%s): %d connections", connection->name().c_str(), connections_.size());
     size_t n = connections_.erase(connection->name());
     (void)n;
     assert(1 == n);
-    log_debug("after connections_.erase(%s): %d connections", connection->name().c_str(), connections_.size());
 
 
     // remove channel on next eventloop.loop
     // @code
     // loop_->removeChannel(channel_.get());
     // @endcode
+    loop_->queueInLoop(bind(&Connection::connectionDestroyed, connection));
 }
