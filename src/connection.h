@@ -38,8 +38,7 @@ class Connection: public boost::enable_shared_from_this<Connection> {
         // called when accept a new connection
         // should be called only once
         void connectionEstablished();
-
-        void connectionStreamed();
+        void connectionDestroyed();
 
         EventLoop* loop() {
             return loop_;

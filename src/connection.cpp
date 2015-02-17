@@ -39,8 +39,8 @@ void Connection::connectionEstablished() {
     connection_callback_(shared_from_this());
 }
 
-void Connection::connectionStreamed() {
-    channel_->enableWriteEvent();
+void Connection::connectionDestroyed() {
+    channel_->remove();
 }
 
 void Connection::send(const void* message, int len) {
