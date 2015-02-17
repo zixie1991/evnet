@@ -37,9 +37,6 @@ class Connector {
         int sockfd_;
         bool connect_;
 
-        // EMFILE errno
-        int dummy_fd_;
-
         NewConnectionCallback new_connection_callback_;
 };
 
