@@ -2,6 +2,8 @@
 
 #include "poller.h"
 #include "channel.h"
+#include "timerqueue.h"
+#include "ptime.h"
 #include "log.h"
 
 const int kPollTimeOutMs = 10000;
@@ -9,7 +11,8 @@ const int kPollTimeOutMs = 10000;
 EventLoop::EventLoop():
     looping_(false),
     quit_(false),
-    poller_(new Poller(this))
+    poller_(new Poller(this)),
+    timer_queue_(new TimerQueue(this))
 {
 }
 
@@ -38,6 +41,18 @@ void EventLoop::loop() {
 
 void EventLoop::quit() {
     quit_ = true;
+}
+
+void EventLoop::runAt(const Timestamp& when, const TimerQueue::TimerCallback& cb) {
+    timer_queue_->addTimer(cb, when, 0);
+}
+
+void EventLoop::runAfter(const Timestamp& when, double seconds, const TimerQueue::TimerCallback& cb) {
+    timer_queue_->addTimer(cb, addtime(when, seconds), 0);
+}
+
+void EventLoop::runRepeat(const Timestamp& when, double seconds, const TimerQueue::TimerCallback& cb) {
+    timer_queue_->addTimer(cb, when, seconds);
 }
 
 void EventLoop::updateChannel(Channel* channel) {
