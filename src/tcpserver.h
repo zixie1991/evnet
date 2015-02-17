@@ -31,6 +31,10 @@ class TcpServer {
             message_callback_ = cb;
         }
 
+        void set_write_complete_callback(const Connection::WriteCompleteCallback& cb) {
+            write_complete_callback_ = cb;
+        }
+
     private:
         void newConnection(int sockfd, const InetAddress& peeraddr);
         void removeConnection(const boost::shared_ptr<Connection>& connection);
@@ -43,6 +47,7 @@ class TcpServer {
 
         Connection::ConnectionCallback connection_callback_;
         Connection::MessageCallback message_callback_;
+        Connection::WriteCompleteCallback write_complete_callback_;
 };
 
 #endif // TCPSERVER_H_
