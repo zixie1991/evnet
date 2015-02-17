@@ -34,6 +34,9 @@ target_link_libraries(connector_test network pthread)
 
 add_executable(tcpserver_test tcpserver_test_.cpp)
 target_link_libraries(tcpserver_test network pthread)
+
+add_executable(timerqueue_test timerqueue_test_.cpp)
+target_link_libraries(timerqueue_test network pthread)
 #    Build each source file independently
 #foreach(source ${TOOLS_SOURCES})
     #get_filename_component(name ${source} NAME_WE)
