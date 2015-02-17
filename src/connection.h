@@ -21,6 +21,7 @@ class Connection: public boost::enable_shared_from_this<Connection> {
         typedef boost::function<void(const boost::shared_ptr<Connection>&, \
                 Buffer& buffer)> MessageCallback;
         typedef boost::function<void(const boost::shared_ptr<Connection>&)> CloseCallback;
+        typedef boost::function<void(const boost::shared_ptr<Connection>&)> WriteCompleteCallback;
 
         Connection(EventLoop* loop, std::string name, int sockfd, const \
                 InetAddress& peeraddr);
@@ -48,6 +49,7 @@ class Connection: public boost::enable_shared_from_this<Connection> {
 
         void set_connection_callback(const ConnectionCallback& cb);
         void set_message_callback(const MessageCallback& cb);
+        void set_write_complete_callback(const WriteCompleteCallback& cb);
         void set_close_callback(const CloseCallback& cb);
 
     private:
@@ -69,6 +71,7 @@ class Connection: public boost::enable_shared_from_this<Connection> {
 
         ConnectionCallback connection_callback_;
         MessageCallback message_callback_;
+        WriteCompleteCallback write_complete_callback_;
         CloseCallback close_callback_;
 };
 

@@ -81,6 +81,10 @@ void Connection::set_message_callback(const MessageCallback& cb) {
     message_callback_ = cb;
 }
 
+void Connection::set_write_complete_callback(const WriteCompleteCallback& cb) {
+    write_complete_callback_ = cb;
+}
+
 void Connection::set_close_callback(const CloseCallback& cb) {
     close_callback_ = cb;
 }
