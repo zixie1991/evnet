@@ -46,12 +46,20 @@ class Connection: public boost::enable_shared_from_this<Connection> {
 
         void send(const void* message, int len);
 
+        void shutdown();
+        bool connected() {
+            return kConnected == state_;
+        }
+
         void set_connection_callback(const ConnectionCallback& cb);
         void set_message_callback(const MessageCallback& cb);
         void set_write_complete_callback(const WriteCompleteCallback& cb);
         void set_close_callback(const CloseCallback& cb);
 
     private:
+        // connection state
+        enum State{kDisconnected, kConnecting, kConnected, kDisconnecting};
+
         void handleReadEvent();
         void handleWriteEvent();
         void handleCloseEvent();
@@ -63,6 +71,8 @@ class Connection: public boost::enable_shared_from_this<Connection> {
         InetAddress peeraddr_;
         boost::scoped_ptr<Socket> socket_;
         boost::scoped_ptr<Channel> channel_;
+
+        State state_;
 
         // buffer.
         Buffer input_buffer_;

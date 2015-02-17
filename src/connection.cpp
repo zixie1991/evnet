@@ -9,13 +9,15 @@
 #include "channel.h"
 #include "log.h"
 
+using boost::bind;
 
 Connection::Connection(EventLoop* loop, std::string name, int sockfd, const InetAddress& peeraddr):
     loop_(loop),
     name_(name),
     peeraddr_(peeraddr),
     socket_(new Socket(sockfd)),
-    channel_(new Channel(loop, sockfd))
+    channel_(new Channel(loop, sockfd)),
+    state_(kConnecting)
 {
     log_debug("Connection constructor: name:%s, fd:%d", name_.c_str(), socket_->fd());
     socket_->setNonblock();
@@ -37,13 +39,24 @@ Connection::~Connection() {
 void Connection::connectionEstablished() {
     channel_->enableReadEvent();
     connection_callback_(shared_from_this());
+
+    state_ = kDisconnected;
 }
 
 void Connection::connectionDestroyed() {
+    if (kConnected == state_) {
+        state_ = kDisconnected;
+        channel_->disableAllEvent();
+    }
+
     channel_->remove();
 }
 
 void Connection::send(const void* message, int len) {
+    if (kConnected != state_) {
+        return ;
+    }
+
     int n = 0;
     bool fault_error = false;
 
@@ -54,6 +67,9 @@ void Connection::send(const void* message, int len) {
 
         if (n >= 0) {
             // FIXME write data complete.
+            if (n == len && write_complete_callback_) {
+                loop_->queueInLoop(bind(write_complete_callback_, shared_from_this()));
+            }
         } else {
             n = 0;
             if (EWOULDBLOCK != errno && EAGAIN != errno) {
@@ -69,6 +85,16 @@ void Connection::send(const void* message, int len) {
         output_buffer_.write(static_cast<const char *>(message) + n, len - n);
         if (!channel_->hasWriteEvent()) {
             channel_->enableWriteEvent();
+        }
+    }
+}
+
+void Connection::shutdown() {
+    if (kConnected == state_) {
+        state_ = kDisconnecting;
+
+        if (!channel_->hasWriteEvent()) {
+            socket_->shutdownWrite();
         }
     }
 }
@@ -116,6 +142,10 @@ void Connection::handleWriteEvent() {
 
             if (0 == output_buffer_.readableBytes()) {
                 channel_->disableWriteEvent();
+
+                if (write_complete_callback_) {
+                    loop_->queueInLoop(bind(write_complete_callback_, shared_from_this()));
+                }
             }
         } else {
 
