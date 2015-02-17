@@ -18,9 +18,6 @@ target_link_libraries(echoserver network gtest pthread)
 add_executable(echoclient echoclient.cpp)
 target_link_libraries(echoclient network gtest pthread)
 
-add_executable(streamclient streamclient.cpp)
-target_link_libraries(streamclient network gtest pthread)
-
 #    Build each source file independently
 #foreach(source ${TOOLS_SOURCES})
     #get_filename_component(name ${source} NAME_WE)
