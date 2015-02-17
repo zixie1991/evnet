@@ -3,8 +3,11 @@
 #include "poller.h"
 #include "channel.h"
 #include "timerqueue.h"
+#include "wakeup.h"
 #include "ptime.h"
 #include "log.h"
+
+using std::vector;
 
 const int kPollTimeOutMs = 10000;
 
@@ -12,7 +15,9 @@ EventLoop::EventLoop():
     looping_(false),
     quit_(false),
     poller_(new Poller(this)),
-    timer_queue_(new TimerQueue(this))
+    timer_queue_(new TimerQueue(this)),
+    wakeup_(new Wakeup(this)),
+    calling_pending_callbacks_(false)
 {
 }
 
@@ -33,6 +38,8 @@ void EventLoop::loop() {
             (*it)->handleEvent();
         }
 
+        // do pending callbacks
+        doPendingCallbacks();
     }
 
     log_warn("EventLoop stop looping");
@@ -41,6 +48,31 @@ void EventLoop::loop() {
 
 void EventLoop::quit() {
     quit_ = true;
+}
+
+void EventLoop::runInLoop(const Callback& cb) {
+    cb();
+}
+
+void EventLoop::queueInLoop(const Callback& cb) {
+    pending_callbacks_.push_back(cb);
+
+    if (calling_pending_callbacks_) {
+        wakeup_->notify();
+    }    
+}
+
+void EventLoop::doPendingCallbacks() {
+    vector<Callback> callbacks;
+    calling_pending_callbacks_ = true;
+
+    callbacks.swap(pending_callbacks_);
+
+    for (size_t i = 0; i < callbacks.size(); i++) {
+        callbacks[i]();
+    }
+
+    calling_pending_callbacks_ = false;
 }
 
 void EventLoop::runAt(const Timestamp& when, const TimerQueue::TimerCallback& cb) {
