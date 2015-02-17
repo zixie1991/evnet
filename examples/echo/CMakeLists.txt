@@ -13,11 +13,13 @@ include_directories(
 )
 
 add_executable(echoserver echoserver.cpp)
-target_link_libraries(echoserver network gtest pthread)
+target_link_libraries(echoserver network pthread)
 
 add_executable(echoclient echoclient.cpp)
-target_link_libraries(echoclient network gtest pthread)
+target_link_libraries(echoclient network pthread)
 
+add_executable(chargenclient chargenclient.cpp)
+target_link_libraries(chargenclient network pthread)
 #    Build each source file independently
 #foreach(source ${TOOLS_SOURCES})
     #get_filename_component(name ${source} NAME_WE)
