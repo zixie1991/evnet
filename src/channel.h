@@ -70,6 +70,8 @@ class Channel {
             index_ = index;
         }
 
+        void remove();
+
     private:
         static const int kReadEvent;
         static const int kWriteEvent;

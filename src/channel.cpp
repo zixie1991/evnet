@@ -97,6 +97,10 @@ void Channel::handleEvent() {
     }
 }
 
+void Channel::remove() {
+    loop_->removeChannel(this);
+}
+
 void Channel::update() {
     loop_->updateChannel(this);
 }
