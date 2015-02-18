@@ -7,6 +7,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
+#include <boost/any.hpp>
 
 #include "inetaddress.h"
 #include "buffer.h"
@@ -56,6 +57,22 @@ class Connection: public boost::enable_shared_from_this<Connection> {
         void set_write_complete_callback(const WriteCompleteCallback& cb);
         void set_close_callback(const CloseCallback& cb);
 
+        Buffer input_buffer() {
+            return input_buffer_;
+        }
+
+        Buffer output_buffer() {
+            return output_buffer_;
+        }
+
+        const boost::any& context() const {
+            return context_;
+        }
+
+        void set_context(const boost::any& context) {
+            context_ = context; 
+        }
+
     private:
         // connection state
         enum State{kDisconnected, kConnecting, kConnected, kDisconnecting};
@@ -77,6 +94,9 @@ class Connection: public boost::enable_shared_from_this<Connection> {
         // buffer.
         Buffer input_buffer_;
         Buffer output_buffer_;
+
+        // context
+        boost::any context_;
 
         ConnectionCallback connection_callback_;
         MessageCallback message_callback_;

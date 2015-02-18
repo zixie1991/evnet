@@ -38,9 +38,9 @@ Connection::~Connection() {
 
 void Connection::connectionEstablished() {
     channel_->enableReadEvent();
-    connection_callback_(shared_from_this());
+    state_ = kConnected;
 
-    state_ = kDisconnected;
+    connection_callback_(shared_from_this());
 }
 
 void Connection::connectionDestroyed() {
