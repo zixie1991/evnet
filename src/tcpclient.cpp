@@ -43,6 +43,7 @@ void TcpClient::newConnection(int sockfd, const InetAddress& server_addr) {
     connection_ = connection;
     connection->set_connection_callback(connection_callback_);
     connection->set_message_callback(message_callback_);
+    connection->set_write_complete_callback(write_complete_callback_);
     connection->set_close_callback(bind(&TcpClient::removeConnection, this, _1));
 
     connection->connectionEstablished();
