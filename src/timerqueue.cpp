@@ -19,6 +19,14 @@ using std::vector;
 struct timespec timestamp_to_timespec(const Timestamp& when) {
     long microseconds = when.microseconds();
     struct timespec ts;
+
+    // 处理延时
+    if (microseconds < 0) {
+        ts.tv_sec = 0;
+        ts.tv_nsec = 1;
+        return ts;
+    }
+
     ts.tv_sec = static_cast<long>(microseconds / Timestamp::kMicrosecondsPerSecond);
     ts.tv_nsec = static_cast<long>(microseconds % Timestamp::kMicrosecondsPerSecond * 1000);
 
