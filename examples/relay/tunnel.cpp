@@ -5,6 +5,7 @@
 #include <boost/bind.hpp>
 
 #include "tcpclient.h"
+#include "log.h"
 
 using std::string;
 using boost::bind;
@@ -38,7 +39,14 @@ void Tunnel::onServerConnection(const boost::shared_ptr<Connection>& connection)
             connection->send(message.c_str(), message.size());
         }
     } else {
-        client_connection_->shutdown();
+        log_info("connection %s disconnected.", client_connection_->name().c_str());
+
+        // client ---C--- relayserver ---S--- server
+        // when server disconnect connection S, the relayserver would disconnect
+        // the connection C
+        if (client_connection_) {
+            client_connection_->shutdown();
+        }
     }
 }
 

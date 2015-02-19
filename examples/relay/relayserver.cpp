@@ -26,14 +26,16 @@ using std::string;
 
 class RelayServer {
     public:
-        RelayServer(EventLoop* loop, const InetAddress& listen_addr, const InetAddress& server_addr);
+        RelayServer(EventLoop* loop, const InetAddress& listen_addr, \
+                const InetAddress& server_addr);
         ~RelayServer();
 
         void start();
 
     private:
         void onClientConnection(const boost::shared_ptr<Connection>& connection);
-        void onClientMessage(const boost::shared_ptr<Connection>& connection, Buffer& buffer);
+        void onClientMessage(const boost::shared_ptr<Connection>& connection, \
+                Buffer& buffer);
 
         EventLoop* loop_;
         TcpServer server_;
@@ -51,11 +53,12 @@ void sig_pipe(int signo) {
 
 int main(int argc, char* argv[]) {
     if (4 != argc) {
-        fprintf(stderr, "Usage: %s <listen_port> <server_ip> <server_port>", argv[0]);
+        fprintf(stderr, "Usage: %s <listen_port> <server_ip> <server_port>", \
+                argv[0]);
         exit(0);
     }
 
-    set_log_level(Logger::LEVEL_WARN);
+    set_log_level(Logger::LEVEL_INFO);
     signal(SIGPIPE, sig_pipe);
     uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
     InetAddress listen_addr(port);
@@ -70,13 +73,16 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-RelayServer::RelayServer(EventLoop* loop, const InetAddress& listen_addr, const InetAddress& server_addr):
+RelayServer::RelayServer(EventLoop* loop, const InetAddress& listen_addr, \
+        const InetAddress& server_addr):
     loop_(loop),
     server_(loop, listen_addr),
     remote_server_addr_(server_addr)
 {
-    server_.set_connection_callback(bind(&RelayServer::onClientConnection, this, _1));
-    server_.set_message_callback(bind(&RelayServer::onClientMessage, this, _1, _2));
+    server_.set_connection_callback(bind(&RelayServer::onClientConnection, \
+                this, _1));
+    server_.set_message_callback(bind(&RelayServer::onClientMessage, this, \
+                _1, _2));
 }
 
 RelayServer::~RelayServer() {
@@ -87,18 +93,30 @@ void RelayServer::start() {
     server_.start();
 }
 
-void RelayServer::onClientConnection(const boost::shared_ptr<Connection>& connection) {
-    shared_ptr<Tunnel> tunnel(new Tunnel(loop_, remote_server_addr_, connection)); 
-    tunnel->connect();
-    tunnels_[connection->name()] = tunnel;
+void RelayServer::onClientConnection(const boost::shared_ptr<Connection>& \
+        connection) {
+    if (connection->connected()) {
+        shared_ptr<Tunnel> tunnel(new Tunnel(loop_, remote_server_addr_, connection)); 
+        tunnel->connect();
+        tunnels_[connection->name()] = tunnel;
+    } else {
+        log_info("connection %s disconnected.", connection->name().c_str());
+        // client ---C--- relayserver ---S--- server
+        // when client disconnect connection C, the relayserver would disconnect
+        // the connection S
+        tunnels_[connection->name()]->disconnect();
+        tunnels_.erase(connection->name());
+    }
 }
 
-void RelayServer::onClientMessage(const boost::shared_ptr<Connection>& connection, Buffer& buffer) {
+void RelayServer::onClientMessage(const boost::shared_ptr<Connection>& \
+        connection, Buffer& buffer) {
     string message;
     buffer.read(message);
 
     if (!connection->context().empty()) {
-        const shared_ptr<Connection>& server_connection = any_cast<const shared_ptr<Connection>&>(connection->context());
+        const shared_ptr<Connection>& server_connection = \
+                any_cast<const shared_ptr<Connection>&>(connection->context());
         server_connection->send(message.c_str(), message.size());
     }
 }
