@@ -17,6 +17,7 @@
 #include "buffer.h"
 #include "tcpserver.h"
 #include "tunnel.h"
+#include "ptime.h"
 #include "log.h"
 
 using boost::shared_ptr;
@@ -36,6 +37,9 @@ class RelayServer {
         void onClientConnection(const boost::shared_ptr<Connection>& connection);
         void onClientMessage(const boost::shared_ptr<Connection>& connection, \
                 Buffer& buffer);
+        void onClientWriteComplete(const boost::shared_ptr<Connection>& connection);
+        // transmit callback
+        void transmit(double seconds);
 
         EventLoop* loop_;
         TcpServer server_;
@@ -43,6 +47,9 @@ class RelayServer {
 
         // tunnel manager
         std::map<std::string, boost::shared_ptr<Tunnel> > tunnels_;
+
+        // transmit count
+        long transmit_count_;
 };
 
 void sig_pipe(int signo) {
@@ -77,12 +84,14 @@ RelayServer::RelayServer(EventLoop* loop, const InetAddress& listen_addr, \
         const InetAddress& server_addr):
     loop_(loop),
     server_(loop, listen_addr),
-    remote_server_addr_(server_addr)
+    remote_server_addr_(server_addr),
+    transmit_count_(0)
 {
     server_.set_connection_callback(bind(&RelayServer::onClientConnection, \
                 this, _1));
     server_.set_message_callback(bind(&RelayServer::onClientMessage, this, \
                 _1, _2));
+    server_.set_write_complete_callback(bind(&RelayServer::onClientWriteComplete, this, _1));
 }
 
 RelayServer::~RelayServer() {
@@ -90,6 +99,12 @@ RelayServer::~RelayServer() {
 }
 
 void RelayServer::start() {
+    // 定时器
+    Timestamp time;
+    time.now();
+    double seconds = 2;
+    loop_->runRepeat(time, seconds, bind(&RelayServer::transmit, this, seconds));
+
     server_.start();
 }
 
@@ -119,4 +134,16 @@ void RelayServer::onClientMessage(const boost::shared_ptr<Connection>& \
                 any_cast<const shared_ptr<Connection>&>(connection->context());
         server_connection->send(message.c_str(), message.size());
     }
+}
+
+void RelayServer::onClientWriteComplete(const boost::shared_ptr<Connection>& \
+        connection) {
+    (void)connection;
+    transmit_count_++;
+}
+
+void RelayServer::transmit(double seconds) {
+    log_info("relay server transmit: %ld transform/seconds", \
+            static_cast<long>(transmit_count_ / seconds));
+    transmit_count_ = 0;
 }
