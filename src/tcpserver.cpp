@@ -45,8 +45,10 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peeraddr) {
     connections_[connection_name] = connection;
     connection->set_connection_callback(connection_callback_);
     connection->set_message_callback(message_callback_);
+    connection->set_write_complete_callback(write_complete_callback_);
     connection->set_close_callback(bind(&TcpServer::removeConnection, this, _1));
     connection->connectionEstablished();
+
 }
 
 void TcpServer::removeConnection(const boost::shared_ptr<Connection>& connection) {
