@@ -47,6 +47,9 @@ void Connection::connectionDestroyed() {
     if (kConnected == state_) {
         state_ = kDisconnected;
         channel_->disableAllEvent();
+
+        // recall connection_callback_
+        connection_callback_(shared_from_this());
     }
 
     channel_->remove();
