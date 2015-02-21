@@ -15,6 +15,7 @@ Wakeup::Wakeup(EventLoop* loop):
     wakeupfd_channel_(new Channel(loop, wakeupfd_))
 {
     wakeupfd_channel_->set_read_callback(bind(&Wakeup::handleReadEvent, this));
+    wakeupfd_channel_->enableReadEvent();
 }
 
 Wakeup::~Wakeup() {
