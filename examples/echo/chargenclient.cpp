@@ -138,11 +138,11 @@ void ChargenClient::removeConnection(const shared_ptr<Connection>& connection) {
     log_info("close callback: remote peer[%s] closed connection", \
             connection->name().c_str());
 
-    log_debug("before connections_.erase(%s): %d connections", connection->name().c_str(), connections_.size());
+    log_trace("before connections_.erase(%s): %d connections", connection->name().c_str(), connections_.size());
     size_t n = connections_.erase(connection->name());
     (void)n;
     assert(1 == n);
-    log_debug("after connections_.erase(%s): %d connections", connection->name().c_str(), connections_.size());
+    log_trace("after connections_.erase(%s): %d connections", connection->name().c_str(), connections_.size());
 
 
     // remove channel on next eventloop.loop
