@@ -2,8 +2,12 @@
 
 #include <unistd.h>
 #include <errno.h>
+#include <sys/syscall.h>
 
 #include <string.h>
+#include <assert.h>
+
+#include "log.h"
 
 template <class T>
 Queue<T>::Queue(){
@@ -198,3 +202,64 @@ int WorkerPool::stop(){
 }
 
 
+// gettid() returns the caller’s thread ID (TID). In a single-threaded 
+// process, the thread ID is equal to the process ID
+// In a multithreaded process, all threads have the same PID, but each one 
+// has a unique TID
+pid_t gettid() {
+    //return static_cast<pid_t>(syscall(__NR_gettid));
+    return static_cast<pid_t>(syscall(SYS_gettid));
+}
+
+
+Thread::Thread(const std::string& name):
+    name_(name),
+    pthreadid_(0),
+    tid_(0),
+    started_(false),
+    joined_(false)
+{
+    context_ = 0;
+}
+
+Thread::~Thread() {
+    if (started_ && !joined_) {
+        pthread_detach(pthreadid_);
+    }
+}
+
+void Thread::start(void *context) {
+    assert(!started_);
+    started_ = true;
+    context_ = context;
+    int ret = pthread_create(&pthreadid_, NULL, threadFunc, this);
+
+    if (0 != ret) {
+        started_ = false;
+        log_fatal("failed in pthread_create");
+        abort();
+    }
+}
+
+int Thread::join() {
+    assert(started_);
+    assert(!joined_);
+    started_ = false;
+    joined_ = true;
+
+    int ret = pthread_join(pthreadid_, 0);
+    if (0 != ret) {
+        return -1;
+    }
+
+    return 0;
+}
+
+void* Thread::threadFunc(void *obj) {
+    Thread *thread= (Thread *)obj;
+    // 注意gettid()的调用位置
+    thread->tid_ = gettid(); 
+    thread->run();
+
+    return 0;
+}

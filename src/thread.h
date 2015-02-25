@@ -190,5 +190,50 @@ class WorkerPool {
 		static void* run_worker(void *arg);
 };
 
+pid_t gettid();
+
+class Thread {
+    public:
+        Thread(const std::string& name=std::string());
+        virtual ~Thread();
+
+        // abort if thread start error
+        void start(void *context);
+        // return pthread_join()
+        int join();
+
+        std::string name() const {
+			return name_;
+		}
+
+        pthread_t pthreadid() const {
+			return pthreadid_;
+		}
+
+        pid_t tid() const {
+			return tid_;
+		}
+
+        bool started() const {
+			return started_;
+		}
+
+    protected:
+        virtual int run() = 0;
+
+    protected:
+        void *context_;
+
+    private:
+        static void* threadFunc(void *obj);
+        std::string name_;
+        pthread_t pthreadid_;
+        pid_t tid_;
+        bool started_;
+        bool joined_;
+
+};
+
+
 
 #endif // THREAD_H_
