@@ -17,7 +17,8 @@ EventLoop::EventLoop():
     poller_(new Poller(this)),
     timer_queue_(new TimerQueue(this)),
     wakeup_(new Wakeup(this)),
-    calling_pending_callbacks_(false)
+    calling_pending_callbacks_(false),
+    tid_(gettid())
 {
 }
 
@@ -51,13 +52,20 @@ void EventLoop::quit() {
 }
 
 void EventLoop::runInLoop(const Callback& cb) {
-    cb();
+    if (isInLoopThread()) {
+        cb();
+    } else {
+        queueInLoop(cb);
+    }
 }
 
 void EventLoop::queueInLoop(const Callback& cb) {
+    {
+    Lock lock(&mutex_);
     pending_callbacks_.push_back(cb);
+    }
 
-    if (calling_pending_callbacks_) {
+    if (!isInLoopThread() || calling_pending_callbacks_) {
         wakeup_->notify();
     }    
 }
@@ -66,7 +74,10 @@ void EventLoop::doPendingCallbacks() {
     vector<Callback> callbacks;
     calling_pending_callbacks_ = true;
 
+    {
+    Lock lock(&mutex_);
     callbacks.swap(pending_callbacks_);
+    }
 
     for (size_t i = 0; i < callbacks.size(); i++) {
         callbacks[i]();

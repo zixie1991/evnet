@@ -7,6 +7,7 @@
 #include <boost/function.hpp>
 
 #include "timerqueue.h"
+#include "thread.h"
 
 class Channel;
 class Poller;
@@ -41,11 +42,16 @@ class EventLoop {
         void updateChannel(Channel* channel);
         void removeChannel(Channel* channel);
 
+        // current thread is in eventloop thread.
+        bool isInLoopThread() const {
+            return tid_ == gettid();
+        }
+
     private:
         void doPendingCallbacks();
 
-        bool looping_;
-        bool quit_;
+        bool looping_; // atomic
+        bool quit_; // atomic
         boost::scoped_ptr<Poller> poller_;
         boost::scoped_ptr<TimerQueue> timer_queue_;
         // event notification
@@ -54,9 +60,12 @@ class EventLoop {
 
         // queue callback
         std::vector<Callback> pending_callbacks_;
-        //
+        // atomic
         bool calling_pending_callbacks_;
 
+        // ensure eventloop thread safe.
+        const pid_t tid_;
+        Mutex mutex_;
 };
 
 #endif // EVENTLOOP_H_
