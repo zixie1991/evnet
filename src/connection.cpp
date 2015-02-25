@@ -60,6 +60,18 @@ void Connection::send(const void* message, int len) {
         return ;
     }
 
+    if (loop_->isInLoopThread()) {
+        sendInLoop(message, len);
+    } else {
+        loop_->runInLoop(bind(&Connection::sendInLoop, this, message, len));
+    }
+}
+
+void Connection::sendInLoop(const void* message, int len) {
+    if (kConnected != state_) {
+        return ;
+    }
+
     int n = 0;
     bool fault_error = false;
 

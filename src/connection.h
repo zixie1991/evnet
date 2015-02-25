@@ -82,6 +82,8 @@ class Connection: public boost::enable_shared_from_this<Connection> {
         void handleCloseEvent();
         void handleErrorEvent();
 
+        void sendInLoop(const void* message, int len);
+
         EventLoop *loop_;
 
         std::string name_;
