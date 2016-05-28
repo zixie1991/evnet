@@ -20,7 +20,9 @@ include_directories(${${PROJECT_NAME}_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 ###    Subdirectories    ##########################################################################
-add_subdirectory(src)
-add_subdirectory(tools)
-add_subdirectory(examples/echo)
-add_subdirectory(examples/relay)
+add_subdirectory(src/net)
+add_subdirectory(src/util)
+# add_subdirectory(src/test)
+# add_subdirectory(tools)
+# add_subdirectory(examples/echo)
+# add_subdirectory(examples/relay)
