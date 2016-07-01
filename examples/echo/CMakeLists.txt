@@ -12,14 +12,14 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(echoserver echoserver.cpp)
-target_link_libraries(echoserver network pthread)
+add_executable(echoserver echoserver.cc)
+target_link_libraries(echoserver net util pthread)
 
-add_executable(echoclient echoclient.cpp)
-target_link_libraries(echoclient network pthread)
+add_executable(echoclient echoclient.cc)
+target_link_libraries(echoclient net util pthread)
 
-add_executable(chargenclient chargenclient.cpp)
-target_link_libraries(chargenclient network pthread)
+add_executable(chargenclient chargenclient.cc)
+target_link_libraries(chargenclient net util pthread)
 #    Build each source file independently
 #foreach(source ${TOOLS_SOURCES})
     #get_filename_component(name ${source} NAME_WE)

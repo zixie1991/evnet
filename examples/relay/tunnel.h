@@ -10,21 +10,22 @@ class Buffer;
 class Connection;
 class TcpClient;
 
+// 隧道
 class Tunnel {
-    public:
-        Tunnel(EventLoop* loop, const InetAddress& server_addr, const boost::shared_ptr<Connection>& client_connection);
-        ~Tunnel();
+  public:
+    Tunnel(EventLoop* loop, const InetAddress& server_addr, const boost::shared_ptr<Connection>& client_connection);
+    ~Tunnel();
 
-        void connect();
-        void disconnect();
+    void Connect();
+    void Disconnect();
 
-    private:
-        void onServerConnection(const boost::shared_ptr<Connection>& connection);
-        void onServerMessage(const boost::shared_ptr<Connection>& connection, \
-                Buffer& buffer);
+  private:
+    void OnServerConnection(const boost::shared_ptr<Connection>& connection);
+    void OnServerMessage(const boost::shared_ptr<Connection>& connection, \
+            Buffer& buffer);
 
-        boost::scoped_ptr<TcpClient> client_;
-        boost::shared_ptr<Connection> client_connection_;
+    boost::scoped_ptr<TcpClient> client_;
+    boost::shared_ptr<Connection> client_connection_;
 };
 
 #endif // TUNNEL_H_

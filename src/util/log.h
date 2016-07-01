@@ -82,12 +82,12 @@ int log_level();
 void set_log_level(int level);
 
 // __PRETTY_FUNCTION__ replace __FUNCTION__
-#define log_trace(fmt, args...) logger.trace("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __PRETTY_FUNCTION__, ##args)
-#define log_debug(fmt, args...) logger.debug("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __PRETTY_FUNCTION__, ##args)
-#define log_info(fmt, args...) logger.info("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __PRETTY_FUNCTION__, ##args)
-#define log_warn(fmt, args...) logger.warn("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __PRETTY_FUNCTION__, ##args)
-#define log_error(fmt, args...) logger.error("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __PRETTY_FUNCTION__, ##args)
-#define log_fatal(fmt, args...) logger.fatal("%s(%d)-[%s]: "fmt, __FILE__, __LINE__, __PRETTY_FUNCTION__, ##args)
+#define log_trace(fmt, args...) logger.trace("%s:%d] "fmt, __FILE__, __LINE__, ##args)
+#define log_debug(fmt, args...) logger.debug("%s:%d] "fmt, __FILE__, __LINE__, ##args)
+#define log_info(fmt, args...) logger.info("%s:%d] "fmt, __FILE__, __LINE__, ##args)
+#define log_warn(fmt, args...) logger.warn("%s:%d] "fmt, __FILE__, __LINE__, ##args)
+#define log_error(fmt, args...) logger.error("%s:%d] "fmt, __FILE__, __LINE__, ##args)
+#define log_fatal(fmt, args...) logger.fatal("%s:%d] "fmt, __FILE__, __LINE__, ##args)
 
 #endif // UTIL_LOG_H_
 

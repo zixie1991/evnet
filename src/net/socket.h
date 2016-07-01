@@ -5,67 +5,67 @@
 class InetAddress;
 
 class Socket {
-    public:
-        explicit Socket(int sockfd=-1):
-            sockfd_(sockfd)
-        {}
+  public:
+    explicit Socket(int sockfd=-1):
+        sockfd_(sockfd)
+    {}
 
-        ~Socket();
+    ~Socket();
 
-        int fd() const { return sockfd_; }
+    int fd() const { return sockfd_; }
 
-        // generate socket
-        int generateSocket();
+    // generate socket
+    int GenerateSocket();
 
-        /**
-         * @brief abort if address in use
-         */
-        void bindAddress(const InetAddress& localaddr);
+    /**
+      * @brief abort if address in use
+      */
+    void BindAddress(const InetAddress& localaddr);
 
-        /**
-         * @brief abort if address in use
-         */
-        void listen();
+    /**
+      * @brief abort if address in use
+      */
+    void Listen();
 
-        /**
-         * @brief
-         * @retval On success, return a non-negative integer that is a 
-         *  descriptor for the accepted socket
-         *  On error, -1 is returned
-         */
-        int accept(InetAddress& peeraddr);
+    /**
+      * @brief
+      * @retval On success, return a non-negative integer that is a 
+      *  descriptor for the accepted socket
+      *  On error, -1 is returned
+      */
+    int Accept(InetAddress& peeraddr);
 
-        int connect(InetAddress& peeraddr);
+    int Connect(InetAddress& peeraddr);
 
-        void shutdownWrite();
+    void ShutdownWrite();
 
-        /**
-         * @brief set socket nonblock
-         */
-        void setNonblock();
+    /**
+      * @brief set socket nonblock
+      */
+    void SetNonblock();
 
-        /**
-         * @brief Enable/disable Nagle Aglorithm
-         */
-        void setNagle(bool on);
+    /**
+      * @brief Enable/disable Nagle Aglorithm
+      */
+    void SetNagle(bool on);
 
-        /**
-         * @breif Enable/disable Linger(取消延迟关闭)
-         */
-        void setLinger(bool on);
+    /**
+      * @breif Enable/disable Linger(取消延迟关闭)
+      */
+    void SetLinger(bool on);
 
-        /**
-         * @brief Enable/disable reuseAddr(短连接)
-         */
-        void setReuseAddr(bool on);
+    /**
+      * @brief Enable/disable reuseAddr(短连接)
+      */
+    void SetReuseAddr(bool on);
 
-        /**
-         * @brief Enable/disable SO_KEEPALIVE
-         */
-        void setKeepAlive(bool on);
+    /**
+      * @brief Enable/disable SO_KEEPALIVE
+      */
+    void SetKeepAlive(bool on);
 
-    private:
-        int sockfd_;
+  private:
+    int sockfd_;
 };
 
 #endif // NET_SOCKET_H_

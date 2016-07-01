@@ -12,8 +12,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(relayserver relayserver.cpp tunnel.cpp)
-target_link_libraries(relayserver network pthread)
+add_executable(relayserver relayserver.cc tunnel.cc)
+target_link_libraries(relayserver net util pthread)
 
 #    Build each source file independently
 #foreach(source ${TOOLS_SOURCES})

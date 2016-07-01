@@ -157,22 +157,22 @@ int Logger::get_level(const char *levelname){
 inline static const char* level_name(int level){
     switch(level){
         case Logger::LEVEL_FATAL:
-            return "[FATAL] ";
+            return "F ";
         case Logger::LEVEL_ERROR:
-            return "[ERROR] ";
+            return "E ";
         case Logger::LEVEL_WARN:
-            return "[WARN ] ";
+            return "W ";
         case Logger::LEVEL_INFO:
-            return "[INFO ] ";
+            return "I ";
         case Logger::LEVEL_DEBUG:
-            return "[DEBUG] ";
+            return "D ";
         case Logger::LEVEL_TRACE:
-            return "[TRACE] ";
+            return "T ";
     }
     return "";
 }
 
-#define LEVEL_NAME_LEN  8
+#define LEVEL_NAME_LEN  2
 #define LOG_BUF_LEN     4096
 
 int Logger::logv(int level, const char *fmt, va_list ap){
@@ -183,6 +183,9 @@ int Logger::logv(int level, const char *fmt, va_list ap){
     char buf[LOG_BUF_LEN];
     int len;
     char *ptr = buf;
+
+    memcpy(ptr, level_name(level), LEVEL_NAME_LEN);
+    ptr += LEVEL_NAME_LEN;
 
     time_t time;
     struct timeval tv;
@@ -198,9 +201,6 @@ int Logger::logv(int level, const char *fmt, va_list ap){
         return -1;
     }
     ptr += len;
-
-    memcpy(ptr, level_name(level), LEVEL_NAME_LEN);
-    ptr += LEVEL_NAME_LEN;
 
     int space = sizeof(buf) - (ptr - buf) - 10;
     len = vsnprintf(ptr, space, fmt, ap);

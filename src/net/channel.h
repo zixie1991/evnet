@@ -14,81 +14,81 @@
  * an eventfd, a timerfd, or a signalfd
  */
 class Channel {
-    public:
-        typedef boost::function<void()> EventCallback;
+  public:
+    typedef boost::function<void()> EventCallback;
 
-        Channel(EventLoop* loop, int fd);
+    Channel(EventLoop* loop, int fd);
 
-        void handleEvent();
+    void HandleEvent();
 
-        void set_read_callback(const EventCallback& cb) {
-            read_callback_ = cb;
-        }
+    void set_read_callback(const EventCallback& cb) {
+      read_callback_ = cb;
+    }
 
-        void set_write_callback(const EventCallback& cb) {
-            write_callback_ = cb;
-        }
+    void set_write_callback(const EventCallback& cb) {
+        write_callback_ = cb;
+    }
 
-        void set_close_callback(const EventCallback& cb) {
-            close_callback_ = cb;
-        }
+    void set_close_callback(const EventCallback& cb) {
+        close_callback_ = cb;
+    }
 
-        void set_error_callback(const EventCallback& cb) {
-            error_callback_ = cb;
-        }
+    void set_error_callback(const EventCallback& cb) {
+        error_callback_ = cb;
+    }
 
-        void enableReadEvent();
-        void disableReadEvent();
-        void enableWriteEvent();
-        void disableWriteEvent();
-        void disableAllEvent();
+    void EnableReadEvent();
+    void DisableReadEvent();
+    void EnableWriteEvent();
+    void DisableWriteEvent();
+    void DisableAllEvent();
 
-        bool hasWriteEvent();
+    bool HasWriteEvent();
 
-        EventLoop* loop() {
-            return loop_;
-        }
+    EventLoop* loop() {
+      return loop_;
+    }
 
-        int fd() const {
-            return fd_;
-        }
+    int fd() const {
+      return fd_;
+    }
 
-        int events() {
-            return events_;
-        }
+    int events() {
+      return events_;
+    }
 
-        void set_events(int events) {
-            events_ = events;
-        }
+    void set_events(int events) {
+      events_ = events;
+    }
 
-        // for Poller
-        int index() {
-            return index_;
-        }
+    // for Poller
+    int index() {
+      return index_;
+    }
 
-        void set_index(int index) {
-            index_ = index;
-        }
+    void set_index(int index) {
+      index_ = index;
+    }
 
-        void remove();
+    void Remove();
 
-    private:
-        static const int kReadEvent;
-        static const int kWriteEvent;
-        static const int kNoneEvent;
+  private:
+    static const int kReadEvent;
+    static const int kWriteEvent;
+    static const int kNoneEvent;
 
-        void update();
+    void Update();
 
-        EventLoop* loop_;
-        int fd_;
-        int events_;
-        // used by Poller
-        int index_;
+    EventLoop* loop_;
+    int fd_;
+    int events_;
+    // used by Poller
+    int index_;
 
-        EventCallback read_callback_;
-        EventCallback write_callback_;
-        EventCallback close_callback_;
-        EventCallback error_callback_;
+    EventCallback read_callback_;
+    EventCallback write_callback_;
+    EventCallback close_callback_;
+    EventCallback error_callback_;
 };
 
 #endif // NET_CHANNEL_H_

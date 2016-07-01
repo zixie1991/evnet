@@ -11,22 +11,22 @@ Workers::Workers(EventLoop* loop, WorkerPool* workerpool):
 	workerpool_(workerpool),
 	channel_(new Channel(loop, workerpool->fd()))
 {
-	channel_->set_read_callback(bind(&Workers::handleReadEvent, this));
+	channel_->set_read_callback(bind(&Workers::HandleReadEvent, this));
 	// we always read the pipe read handler
-	channel_->enableReadEvent();
+	channel_->EnableReadEvent();
 }
 
 Workers::~Workers() {
 
 }
 
-void Workers::delegate(const WorkerPtr& worker) {
-	workerpool_->push(worker);
+void Workers::Delegate(const WorkerPtr& worker) {
+	workerpool_->Push(worker);
 }
 
-void Workers::handleReadEvent() {
+void Workers::HandleReadEvent() {
 	Worker* worker;
-	workerpool_->pop(worker);
+	workerpool_->Pop(worker);
 
-	worker->callback();
+	worker->Callback();
 }

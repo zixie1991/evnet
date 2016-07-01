@@ -13,29 +13,29 @@ class Timestamp;
 class Timer;
 
 class TimerQueue {
-    public:
-        typedef boost::function<void()> TimerCallback;
+  public:
+    typedef boost::function<void()> TimerCallback;
 
-        TimerQueue(EventLoop* loop);
-        ~TimerQueue();
+    TimerQueue(EventLoop* loop);
+    ~TimerQueue();
 
-        void addTimer(const TimerCallback& cb, Timestamp when, double interval);
+    void AddTimer(const TimerCallback& cb, Timestamp when, double interval);
 
-    private:
-        // called when timerfd alarms
-        void handleReadEvent();
+  private:
+    // called when timerfd alarms
+    void HandleReadEvent();
 
-        // intert Timer into timers_
-        bool insert(Timer* timer);
-        std::vector<std::pair<Timestamp, Timer*> > getExpiredTimers(Timestamp when);
-        // delete or reset Timer in the timers_
-        void deleteOrReset(const std::vector<std::pair<Timestamp, Timer*> >& timers, const Timestamp& now);
+    // intert Timer into timers_
+    bool Insert(Timer* timer);
+    std::vector<std::pair<Timestamp, Timer*> > getExpiredTimers(Timestamp when);
+    // delete or reset Timer in the timers_
+    void DeleteOrReset(const std::vector<std::pair<Timestamp, Timer*> >& timers, const Timestamp& now);
 
-        std::set<std::pair<Timestamp, Timer*> > timers_;
+    std::set<std::pair<Timestamp, Timer*> > timers_;
 
-        EventLoop* loop_;
-        int timerfd_;
-        boost::scoped_ptr<Channel> timerfd_channel_;
+    EventLoop* loop_;
+    int timerfd_;
+    boost::scoped_ptr<Channel> timerfd_channel_;
 };
 
 #endif // NET_TIMERQUEUE_H_

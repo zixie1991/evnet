@@ -10,21 +10,21 @@
 #include "log.h"
 
 template <class T>
-Queue<T>::Queue(){
+Queue<T>::Queue() {
 	pthread_cond_init(&cond_, NULL);
 	pthread_mutex_init(&mutex_, NULL);
 }
 
 template <class T>
-Queue<T>::~Queue(){
+Queue<T>::~Queue() {
 	pthread_cond_destroy(&cond_);
 	pthread_mutex_destroy(&mutex_);
 }
 
 template <class T>
-bool Queue<T>::empty(){
+bool Queue<T>::empty() {
 	bool ret = false;
-	if(pthread_mutex_lock(&mutex_) != 0){
+	if(pthread_mutex_lock(&mutex_) != 0) {
 		return -1;
 	}
 	ret = items_.empty();
@@ -35,7 +35,7 @@ bool Queue<T>::empty(){
 template <class T>
 int Queue<T>::size(){
 	int ret = -1;
-	if(pthread_mutex_lock(&mutex_) != 0){
+	if(pthread_mutex_lock(&mutex_) != 0) {
 		return -1;
 	}
 	ret = items_.size();
@@ -44,8 +44,8 @@ int Queue<T>::size(){
 }
 
 template <class T>
-int Queue<T>::push(const T& item){
-	if(pthread_mutex_lock(&mutex_) != 0){
+int Queue<T>::Push(const T& item) {
+	if(pthread_mutex_lock(&mutex_) != 0) {
 		return -1;
 	}
 	{
@@ -57,15 +57,15 @@ int Queue<T>::push(const T& item){
 }
 
 template <class T>
-int Queue<T>::pop(T &data){
-	if(pthread_mutex_lock(&mutex_) != 0){
+int Queue<T>::Pop(T &data) {
+	if(pthread_mutex_lock(&mutex_) != 0) {
 		return -1;
 	}
 	{
 		// 必须放在循环中, 因为 pthread_cond_wait 可能抢不到锁而被其它处理了
-		while(items_.empty()){
+		while(items_.empty()) {
 			//fprintf(stderr, "%d wait\n", pthread_self());
-			if(pthread_cond_wait(&cond_, &mutex_) != 0){
+			if(pthread_cond_wait(&cond_, &mutex_) != 0) {
 				//fprintf(stderr, "%s %d -1!\n", __FILE__, __LINE__);
 				return -1;
 			}
@@ -75,7 +75,7 @@ int Queue<T>::pop(T &data){
 		//fprintf(stderr, "%d job: %d\n", pthread_self(), (int)*data);
 		items_.pop();
 	}
-	if(pthread_mutex_unlock(&mutex_) != 0){
+	if(pthread_mutex_unlock(&mutex_) != 0) {
 		//fprintf(stderr, "error!\n");
 		return -1;
 	}
@@ -85,20 +85,20 @@ int Queue<T>::pop(T &data){
 
 
 template <class T>
-SelectableQueue<T>::SelectableQueue(){
+SelectableQueue<T>::SelectableQueue() {
 	if(pipe(fds_) == -1){
 		exit(0);
 	}
 }
 
 template <class T>
-SelectableQueue<T>::~SelectableQueue(){
+SelectableQueue<T>::~SelectableQueue() {
 	close(fds_[0]);
 	close(fds_[1]);
 }
 
 template <class T>
-int SelectableQueue<T>::push(const T& item){
+int SelectableQueue<T>::Push(const T& item) {
 	if (::write(fds_[1], (char *)&item, sizeof(T)) == -1) {
 		exit(0);
 	}
@@ -107,7 +107,7 @@ int SelectableQueue<T>::push(const T& item){
 }
 
 template <class T>
-int SelectableQueue<T>::pop(T &data){
+int SelectableQueue<T>::Pop(T &data) {
 	int n;
 	int ret = 0;
 	n = ::read(fds_[0], (char *)&data, sizeof(T));
@@ -130,20 +130,20 @@ WorkerPool::WorkerPool(const char *name){
 
 WorkerPool::~WorkerPool(){
 	if(started_){
-		stop();
+		Stop();
 	}
 }
 
-int WorkerPool::push(const WorkerPtr& job){
-	return jobs_.push(job);
+int WorkerPool::Push(const WorkerPtr& job) {
+	return jobs_.Push(job);
 }
 
-int WorkerPool::pop(WorkerPtr& result){
-	return results_.pop(result);
+int WorkerPool::Pop(WorkerPtr& result) {
+	return results_.Pop(result);
 }
 
-void* WorkerPool::run_worker(void *arg){
-	struct run_arg *p = (struct run_arg*)arg;
+void* WorkerPool::run_worker(void *arg) {
+	struct RunArg *p = (struct RunArg*)arg;
 	int id = p->id;
     (void)id;
 	WorkerPool *tp = p->tp;
@@ -151,17 +151,17 @@ void* WorkerPool::run_worker(void *arg){
 
 	while(1){
 		WorkerPtr job;
-		if(tp->jobs_.pop(job) == -1){
+		if(tp->jobs_.Pop(job) == -1){
 			fprintf(stderr, "jobs.pop error\n");
 			::exit(0);
 			break;
 		}
 
-		job->preProcess();
-		job->process();
-		job->postProcess();
+		job->PreProcess();
+		job->Process();
+		job->PostProcess();
 
-		if(tp->results_.push(job) == -1){
+		if(tp->results_.Push(job) == -1){
 			fprintf(stderr, "results.push error\n");
 			::exit(0);
 			break;
@@ -170,15 +170,16 @@ void* WorkerPool::run_worker(void *arg){
 	return (void *)NULL;
 }
 
-int WorkerPool::start(int num_workers){
+int WorkerPool::Start(int num_workers) {
 	num_workers_ = num_workers;
-	if(started_){
+	if(started_) {
 		return 0;
 	}
+
 	int err;
 	pthread_t tid;
-	for(int i=0; i<num_workers; i++){
-		struct run_arg *arg = new run_arg();
+	for(int i=0; i<num_workers; i++) {
+		struct RunArg *arg = new RunArg();
 		arg->id = i;
 		arg->tp = this;
 
@@ -193,11 +194,12 @@ int WorkerPool::start(int num_workers){
 	return 0;
 }
 
-int WorkerPool::stop(){
+int WorkerPool::Stop() {
 	// TODO: notify works quit and wait
-	for(size_t i = 0; i < tids_.size(); i++){
+	for(size_t i = 0; i < tids_.size(); i++) {
 		pthread_cancel(tids_[i]);
 	}
+
 	return 0;
 }
 
@@ -228,11 +230,11 @@ Thread::~Thread() {
     }
 }
 
-void Thread::start(void *context) {
+void Thread::Start(void *context) {
     assert(!started_);
     started_ = true;
     context_ = context;
-    int ret = pthread_create(&pthreadid_, NULL, threadFunc, this);
+    int ret = pthread_create(&pthreadid_, NULL, thread_func, this);
 
     if (0 != ret) {
         started_ = false;
@@ -241,7 +243,7 @@ void Thread::start(void *context) {
     }
 }
 
-int Thread::join() {
+int Thread::Join() {
     assert(started_);
     assert(!joined_);
     started_ = false;
@@ -255,11 +257,11 @@ int Thread::join() {
     return 0;
 }
 
-void* Thread::threadFunc(void *obj) {
+void* Thread::thread_func(void *obj) {
     Thread *thread= (Thread *)obj;
     // 注意gettid()的调用位置
     thread->tid_ = gettid(); 
-    thread->run();
+    thread->Run();
 
     return 0;
 }

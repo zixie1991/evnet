@@ -8,20 +8,20 @@ class Channel;
 
 class Wakeup {
     public:
-        Wakeup(EventLoop* loop);
-        ~Wakeup();
+      Wakeup(EventLoop* loop);
+      ~Wakeup();
 
-        // notify event
-        void notify();
+      // notify event
+      void Notify();
 
     private:
-        // called when eventfd notify
-        void handleReadEvent();
+      // called when eventfd notify
+      void HandleReadEvent();
 
-        EventLoop* loop_;
-        // event notification file descriptor, create by eventfd().
-        int wakeupfd_;
-        boost::scoped_ptr<Channel> wakeupfd_channel_;
+      EventLoop* loop_;
+      // event notification file descriptor, create by eventfd().
+      int wakeupfd_;
+      boost::scoped_ptr<Channel> wakeupfd_channel_;
 };
 
 #endif // NET_WAKEUP_H_

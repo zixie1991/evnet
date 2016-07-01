@@ -10,32 +10,32 @@ class EventLoop;
 class InetAddress;
 
 class Acceptor {
-    public:
-        typedef boost::function<void(int, const InetAddress&)> NewConnectionCallback;
+  public:
+    typedef boost::function<void(int, const InetAddress&)> NewConnectionCallback;
 
-        Acceptor(EventLoop* loop, const InetAddress& listen_addr);
-        ~Acceptor();
+    Acceptor(EventLoop* loop, const InetAddress& listen_addr);
+    ~Acceptor();
 
-        void set_new_connection_callback_(NewConnectionCallback cb);
+    void set_new_connection_callback_(NewConnectionCallback cb);
 
-        void listen();
+    void Listen();
 
-        bool listenning() {
-            return listenning_;
-        }
+    bool listenning() {
+      return listenning_;
+    }
 
-    private:
-        void handleReadEvent();
+  private:
+    void HandleReadEvent();
 
-        EventLoop* loop_;
-        Socket socket_;
-        Channel channel_;
-        bool listenning_;
+    EventLoop* loop_;
+    Socket socket_;
+    Channel channel_;
+    bool listenning_;
 
-        // EMFILE errno
-        int dummy_fd_;
+    // EMFILE errno
+    int dummy_fd_;
 
-        NewConnectionCallback new_connection_callback_;
+    NewConnectionCallback new_connection_callback_;
 };
 
 #endif // NET_ACCEPTOR_H_

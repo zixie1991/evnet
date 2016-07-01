@@ -13,96 +13,96 @@ using std::vector;
 const int kPollTimeOutMs = 10000;
 
 EventLoop::EventLoop():
-    looping_(false),
-    quit_(false),
-    poller_(new Poller(this)),
-    timer_queue_(new TimerQueue(this)),
-    wakeup_(new Wakeup(this)),
-    calling_pending_callbacks_(false),
-    tid_(gettid())
+  looping_(false),
+  quit_(false),
+  poller_(new Poller(this)),
+  timer_queue_(new TimerQueue(this)),
+  wakeup_(new Wakeup(this)),
+  calling_pending_callbacks_(false),
+  tid_(gettid())
 {
 }
 
 EventLoop::~EventLoop() {
-    assert(!looping_);
+  assert(!looping_);
 }
 
-void EventLoop::loop() {
-    looping_ = true;
-    quit_ = false;
+void EventLoop::Loop() {
+  looping_ = true;
+  quit_ = false;
 
-    while (!quit_) {
-        active_channels_.clear();
-        poller_->poll(kPollTimeOutMs, active_channels_);
+  while (!quit_) {
+    active_channels_.clear();
+    poller_->Poll(kPollTimeOutMs, active_channels_);
 
-        for (std::vector<Channel*>::iterator it = active_channels_.begin();
-                it != active_channels_.end(); ++it) {
-            (*it)->handleEvent();
-        }
-
-        // do pending callbacks
-        doPendingCallbacks();
+    for (std::vector<Channel*>::iterator it = active_channels_.begin();
+            it != active_channels_.end(); ++it) {
+        (*it)->HandleEvent();
     }
 
-    log_warn("EventLoop stop looping");
-    looping_ = false;
+    // do pending callbacks
+    DoPendingCallbacks();
+  }
+
+  log_warn("EventLoop stop looping");
+  looping_ = false;
 }
 
-void EventLoop::quit() {
+void EventLoop::Quit() {
     quit_ = true;
 }
 
-void EventLoop::runInLoop(const Callback& cb) {
-    if (isInLoopThread()) {
-        cb();
-    } else {
-        queueInLoop(cb);
-    }
+void EventLoop::RunInLoop(const Callback& cb) {
+  if (IsInLoopThread()) {
+    cb();
+  } else {
+    QueueInLoop(cb);
+  }
 }
 
-void EventLoop::queueInLoop(const Callback& cb) {
-    {
-    Lock lock(&mutex_);
-    pending_callbacks_.push_back(cb);
-    }
+void EventLoop::QueueInLoop(const Callback& cb) {
+  {
+  Lock lock(&mutex_);
+  pending_callbacks_.push_back(cb);
+  }
 
-    if (!isInLoopThread() || calling_pending_callbacks_) {
-        wakeup_->notify();
-    }    
+  if (!IsInLoopThread() || calling_pending_callbacks_) {
+    wakeup_->Notify();
+  }    
 }
 
-void EventLoop::doPendingCallbacks() {
-    vector<Callback> callbacks;
-    calling_pending_callbacks_ = true;
+void EventLoop::DoPendingCallbacks() {
+  vector<Callback> callbacks;
+  calling_pending_callbacks_ = true;
 
-    {
-    Lock lock(&mutex_);
-    callbacks.swap(pending_callbacks_);
-    }
+  {
+  Lock lock(&mutex_);
+  callbacks.swap(pending_callbacks_);
+  }
 
-    for (size_t i = 0; i < callbacks.size(); i++) {
-        callbacks[i]();
-    }
+  for (size_t i = 0; i < callbacks.size(); i++) {
+    callbacks[i]();
+  }
 
-    calling_pending_callbacks_ = false;
+  calling_pending_callbacks_ = false;
 }
 
-void EventLoop::runAt(const Timestamp& when, const TimerQueue::TimerCallback& cb) {
-    timer_queue_->addTimer(cb, when, 0);
+void EventLoop::RunAt(const Timestamp& when, const TimerQueue::TimerCallback& cb) {
+  timer_queue_->AddTimer(cb, when, 0);
 }
 
-void EventLoop::runAfter(const Timestamp& when, double seconds, const TimerQueue::TimerCallback& cb) {
-    timer_queue_->addTimer(cb, addtime(when, seconds), 0);
+void EventLoop::RunAfter(const Timestamp& when, double seconds, const TimerQueue::TimerCallback& cb) {
+  timer_queue_->AddTimer(cb, addtime(when, seconds), 0);
 }
 
-void EventLoop::runRepeat(const Timestamp& when, double seconds, const TimerQueue::TimerCallback& cb) {
-    timer_queue_->addTimer(cb, when, seconds);
+void EventLoop::RunRepeat(const Timestamp& when, double seconds, const TimerQueue::TimerCallback& cb) {
+  timer_queue_->AddTimer(cb, when, seconds);
 }
 
-void EventLoop::updateChannel(Channel* channel) {
-    poller_->updateChannel(channel);
+void EventLoop::UpdateChannel(Channel* channel) {
+  poller_->UpdateChannel(channel);
 }
 
-void EventLoop::removeChannel(Channel* channel) {
-    poller_->removeChannel(channel);
+void EventLoop::RemoveChannel(Channel* channel) {
+  poller_->RemoveChannel(channel);
 }

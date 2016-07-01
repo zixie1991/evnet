@@ -15,15 +15,19 @@ class Mutex{
 		Mutex(){
 			pthread_mutex_init(&mutex_, NULL);
 		}
+
 		~Mutex(){
 			pthread_mutex_destroy(&mutex_);
 		}
-		void lock(){
+
+		void Lock(){
 			pthread_mutex_lock(&mutex_);
 		}
-		void unlock(){
+
+		void Unlock(){
 			pthread_mutex_unlock(&mutex_);
 		}
+
 		pthread_mutex_t* pthread_mutex() {
 			return &mutex_;
 		}
@@ -37,10 +41,11 @@ class Lock{
 	public:
 		Lock(Mutex *mutex){
 			mutex_ = mutex;
-			mutex_->lock();
+			mutex_->Lock();
 		}
+
 		~Lock(){
-			mutex_->unlock();
+			mutex_->Unlock();
 		}
 
 	private:
@@ -63,16 +68,19 @@ class Condition {
 			pthread_cond_destroy(&cond_);
 		}
 
-		int wait() {
+		int Wait() {
 			return pthread_cond_wait(&cond_, mutex_->pthread_mutex());
 		}
-		int timedwait(struct timespec& ts) {
+
+		int TimedWait(struct timespec& ts) {
 			return pthread_cond_timedwait(&cond_, mutex_->pthread_mutex(), &ts);
 		}
-		int signal() {
+
+		int Signal() {
 			return pthread_cond_broadcast(&cond_);
 		}
-		int broadcast() {
+
+		int Broadcast() {
 			return pthread_cond_broadcast(&cond_);
 		}
 
@@ -91,9 +99,9 @@ class Queue{
 
 		bool empty();
 		int size();
-		int push(const T& item);
+		int Push(const T& item);
 		// TODO: with timeout
-		int pop(T &data);
+		int Pop(T &data);
 
 	private:
 		pthread_cond_t cond_;
@@ -113,9 +121,9 @@ class SelectableQueue{
 		}
 
 		// multi writer
-		int push(const T& item);
+		int Push(const T& item);
 		// single reader
-		int pop(T &data);
+		int Pop(T &data);
 
 	private:
 		int fds_[2];
@@ -128,6 +136,7 @@ class Worker {
 		Worker() {
 
 		}
+
 		virtual ~Worker() {
 
 		}
@@ -135,23 +144,23 @@ class Worker {
 		/**
 		* @brief 在执行具体业务前的公共操作
 		*/
-		virtual int preProcess() {
+		virtual int PreProcess() {
 			return 0;
 		};
 
 		/**
 		* @brief 具体业务
 		*/
-		virtual int process() = 0;
+		virtual int Process() = 0;
 
 		/**
 		* @brief 执行具体业务后的公共操作
 		*/
-		virtual int postProcess() {
+		virtual int PostProcess() {
 			return 0;
 		}
 
-		virtual int callback() {
+		virtual int Callback() {
 			return 0;
 		}
 
@@ -168,11 +177,11 @@ class WorkerPool {
 			return results_.fd();
 		}
 
-		int start(int num_workers);
-		int stop();
+		int Start(int num_workers);
+		int Stop();
 
-		int push(const WorkerPtr& job);
-		int pop(WorkerPtr& job);
+		int Push(const WorkerPtr& job);
+		int Pop(WorkerPtr& job);
 
 	private:
 		std::string name_;
@@ -183,7 +192,7 @@ class WorkerPool {
 		std::vector<pthread_t> tids_;
 		bool started_;
 
-		struct run_arg{
+		struct RunArg {
 			int id;
 			WorkerPool *tp;
 		};
@@ -193,46 +202,44 @@ class WorkerPool {
 pid_t gettid();
 
 class Thread {
-    public:
-        Thread(const std::string& name=std::string());
-        virtual ~Thread();
+  public:
+    Thread(const std::string& name=std::string());
+    virtual ~Thread();
 
-        // abort if thread start error
-        void start(void *context);
-        // return pthread_join()
-        int join();
+    // abort if thread start error
+    void Start(void *context);
+    // return pthread_join()
+    int Join();
 
-        std::string name() const {
-			return name_;
+    std::string name() const {
+      return name_;
 		}
 
-        pthread_t pthreadid() const {
+    pthread_t pthreadid() const {
 			return pthreadid_;
 		}
 
-        pid_t tid() const {
+    pid_t tid() const {
 			return tid_;
 		}
 
-        bool started() const {
+    bool started() const {
 			return started_;
 		}
 
-    protected:
-        virtual int run() = 0;
+  protected:
+    virtual int Run() = 0;
 
-    protected:
-        void *context_;
+  protected:
+    void *context_;
 
-    private:
-        static void* threadFunc(void *obj);
-        std::string name_;
-        pthread_t pthreadid_;
-        pid_t tid_;
-        bool started_;
-        bool joined_;
-
+  private:
+    static void* thread_func(void *obj);
+    std::string name_;
+    pthread_t pthreadid_;
+    pid_t tid_;
+    bool started_;
+    bool joined_;
 };
 
 #endif // UTIL_THREAD_H_
-
