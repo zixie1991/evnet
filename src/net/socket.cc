@@ -52,10 +52,10 @@ void Socket::Listen() {
 
 int Socket::Accept(InetAddress &peeraddr) {
   struct sockaddr_in addr;
-  socklen_t addrLen = sizeof(addr);
+  socklen_t addr_len = sizeof(addr);
   memset(&addr, 0, sizeof(addr));
 
-  int fd = ::accept(sockfd_, (struct sockaddr *)&addr, &addrLen);
+  int fd = ::accept(sockfd_, (struct sockaddr *)&addr, &addr_len);
   peeraddr.set_addr(addr);    
 
   return fd;
