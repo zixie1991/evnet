@@ -6,10 +6,10 @@
 
 using boost::bind;
 
-Workers::Workers(EventLoop* loop, WorkerPool* workerpool):
+Workers::Workers(EventLoop* loop, ThreadPoolWithPipe* thread_pool):
 	loop_(loop),
-	workerpool_(workerpool),
-	channel_(new Channel(loop, workerpool->fd()))
+	thread_pool_(thread_pool),
+	channel_(new Channel(loop, thread_pool_->fd()))
 {
 	channel_->set_read_callback(bind(&Workers::HandleReadEvent, this));
 	// we always read the pipe read handler
@@ -20,13 +20,12 @@ Workers::~Workers() {
 
 }
 
-void Workers::Delegate(const WorkerPtr& worker) {
-	workerpool_->Push(worker);
+void Workers::Delegate(ThreadPoolWithPipe::Task* task) {
+	thread_pool_->Run(task);
 }
 
 void Workers::HandleReadEvent() {
-	Worker* worker;
-	workerpool_->Pop(worker);
+  ThreadPoolWithPipe::Task* task = thread_pool_->Take();
 
-	worker->Callback();
+  task->Callback();
 }

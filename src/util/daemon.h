@@ -9,6 +9,6 @@
  *
  * @return 成功返回0，失败返回-1
  */
-int Daemon(const char *work_dir=NULL);
+int Daemon(const char* work_dir="");
 
 #endif

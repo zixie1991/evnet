@@ -2,6 +2,7 @@
 
 #include "util/ptime.h"
 #include "util/log.h"
+#include "util/lock_guard.h"
 
 #include "poller.h"
 #include "channel.h"
@@ -62,7 +63,7 @@ void EventLoop::RunInLoop(const Callback& cb) {
 
 void EventLoop::QueueInLoop(const Callback& cb) {
   {
-  Lock lock(&mutex_);
+  LockGuard<Mutex> lock(&mutex_);
   pending_callbacks_.push_back(cb);
   }
 
@@ -76,7 +77,7 @@ void EventLoop::DoPendingCallbacks() {
   calling_pending_callbacks_ = true;
 
   {
-  Lock lock(&mutex_);
+  LockGuard<Mutex> lock(&mutex_);
   callbacks.swap(pending_callbacks_);
   }
 

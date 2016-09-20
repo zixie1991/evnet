@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 
-int Daemon(const char *work_dir) {
+int Daemon(const char* work_dir) {
   switch (fork()) {
     case -1:
       return -1;

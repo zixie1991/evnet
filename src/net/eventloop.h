@@ -7,6 +7,7 @@
 #include <boost/function.hpp>
 
 #include "util/thread.h"
+#include "util/mutex.h"
 
 #include "timerqueue.h"
 
