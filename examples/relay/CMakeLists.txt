@@ -8,23 +8,9 @@ project(relay)
 #    Find all source files
 
 include_directories(
-    ${Network_SOURCE_DIR}
+    ${Evnet_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(relayserver relayserver.cc tunnel.cc)
-target_link_libraries(relayserver net util pthread)
-
-#    Build each source file independently
-#foreach(source ${TOOLS_SOURCES})
-    #get_filename_component(name ${source} NAME_WE)
-    #add_executable(${name}.bin ${source})
-    #set_target_properties(${name}.bin PROPERTIES OUTPUT_NAME ${name})
-    #target_link_libraries(${name}.bin imagetool gtest pthread)
-
-###    Install    #################################################################################
-
-    #install(TARGETS ${name}.bin DESTINATION tools)
-
-#endforeach(source)
-
+add_executable(relay_server relay_server.cc tunnel.cc)
+target_link_libraries(relay_server evnet glog pthread)

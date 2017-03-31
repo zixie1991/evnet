@@ -1,16 +1,8 @@
+#include "evnet/tcp_client.h"
+
 #include "tunnel.h"
 
-#include <string>
-
-#include <boost/bind.hpp>
-
-#include "net/tcpclient.h"
-#include "util/log.h"
-
-using std::string;
-using boost::bind;
-
-Tunnel::Tunnel(EventLoop* loop, const InetAddress& server_addr, const boost::shared_ptr<Connection>& client_connection):
+Tunnel::Tunnel(EventLoop* loop, const InetAddress& server_addr, const shared_ptr<TcpConnection>& client_connection):
   client_(new TcpClient(loop, server_addr)),
   client_connection_(client_connection)
 {
@@ -30,17 +22,16 @@ void Tunnel::Disconnect() {
   client_->Disconnect();
 }
 
-void Tunnel::OnServerConnection(const boost::shared_ptr<Connection>& connection) {
+void Tunnel::OnServerConnection(const shared_ptr<TcpConnection>& connection) {
   if (connection->connected()) {
     client_connection_->set_context(connection);
     if (client_connection_->input_buffer().ReadableBytes() > 0) {
       string message;
       client_connection_->input_buffer().Read(message);
-      connection->Send(message.c_str(), message.size());
+      connection->Send(message);
     }
   } else {
-    log_info("connection %s disconnected.", client_connection_->name().c_str());
-
+    LOG(INFO) << "Connection [" << connection->name() << "] disconnected";
     // client ---C--- relayserver ---S--- server
     // when server disconnect connection S, the relayserver would disconnect
     // the connection C
@@ -50,10 +41,10 @@ void Tunnel::OnServerConnection(const boost::shared_ptr<Connection>& connection)
   }
 }
 
-void Tunnel::OnServerMessage(const boost::shared_ptr<Connection>& connection, \
+void Tunnel::OnServerMessage(const shared_ptr<TcpConnection>& connection, \
         Buffer& buffer) {
   (void)connection;
   string message;
   buffer.Read(message);
-  client_connection_->Send(message.c_str(), message.size());
+  client_connection_->Send(message);
 }
