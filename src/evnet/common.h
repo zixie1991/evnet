@@ -17,6 +17,8 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <sstream>
+#include <iostream>
 
 #include <glog/logging.h>
 #include <boost/any.hpp>
@@ -39,6 +41,7 @@ using std::mutex;
 using std::lock_guard;
 using std::unique_lock;
 using std::condition_variable;
+using std::stringstream;
 
 using boost::any;
 using boost::any_cast;
