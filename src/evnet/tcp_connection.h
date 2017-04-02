@@ -9,6 +9,8 @@ class EventLoop;
 class Socket;
 class Channel;
 
+const int kContextCount = 16;
+
 class TcpConnection: public enable_shared_from_this<TcpConnection> {
   public:
     typedef function<void(const shared_ptr<TcpConnection>&)> ConnectionCallback;
@@ -60,11 +62,21 @@ class TcpConnection: public enable_shared_from_this<TcpConnection> {
     }
 
     const any& context() const {
-      return context_;
+      return context_[0];
     }
 
     void set_context(const any& context) {
-      context_ = context; 
+      context_[0] = context; 
+    }
+
+    const any& context(int idx) const {
+      CHECK(idx >= 0 && idx < kContextCount);
+      return context_[idx];
+    }
+
+    void set_context(int idx, const any& context) {
+      CHECK(idx >= 0 && idx < kContextCount);
+      context_[idx] = context;
     }
 
   private:
@@ -92,7 +104,7 @@ class TcpConnection: public enable_shared_from_this<TcpConnection> {
     Buffer output_buffer_;
 
     // context
-    any context_;
+    any context_[kContextCount];
 
     ConnectionCallback connection_callback_;
     MessageCallback message_callback_;
