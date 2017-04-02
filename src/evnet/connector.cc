@@ -31,12 +31,14 @@ void Connector::Stop() {
 
 void Connector::Connect() {
   if ((sockfd_ = ::socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    LOG(ERROR) << "Create socket error: " << strerror(errno);
+    return ;
   }
 
   int ret = 0;
   ret = ::connect(sockfd_, (struct sockaddr *)&server_addr_.addr(), sizeof(server_addr_.addr()));
   if (ret < 0) {
-    LOG(ERROR) << "connect to server " << server_addr_.ip() << ":" << server_addr_.port() << " error";
+    LOG(ERROR) << "Connect to server " << server_addr_.ip() << ":" << server_addr_.port() << " error: " << strerror(errno);
   } else {
     Connecting();
   }
