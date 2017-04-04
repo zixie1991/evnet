@@ -7,10 +7,11 @@
 class EventLoop;
 class InetAddress;
 class Acceptor;
+class EventLoopThreadPool;
 
 class TcpServer {
   public:
-    TcpServer(EventLoop* loop, const InetAddress& listen_addr);
+    TcpServer(EventLoop* loop, const InetAddress& listen_addr, int thread_num=0);
     ~TcpServer();
 
     /**
@@ -34,7 +35,8 @@ class TcpServer {
     void NewConnection(int sockfd, const InetAddress& peeraddr);
     void RemoveConnection(const shared_ptr<TcpConnection>& connection);
 
-    EventLoop* loop_;
+    //EventLoop* loop_;
+    shared_ptr<EventLoopThreadPool> loop_thread_pool_;
     unique_ptr<Acceptor> acceptor_;
     map<string, shared_ptr<TcpConnection> > connections_;
     bool started_;
