@@ -30,6 +30,7 @@ TcpConnection::~TcpConnection() {
 }
 
 void TcpConnection::ConnectionEstablished() {
+  CHECK(loop_->IsInLoopThread());
   channel_->EnableReadEvent();
   state_ = kConnected;
 
@@ -39,6 +40,7 @@ void TcpConnection::ConnectionEstablished() {
 }
 
 void TcpConnection::ConnectionDestroyed() {
+  CHECK(loop_->IsInLoopThread());
   if (kConnected == state_) {
     state_ = kDisconnected;
     channel_->DisableAllEvent();
@@ -70,6 +72,7 @@ void TcpConnection::Send(const string& message) {
 }
 
 void TcpConnection::SendInLoop(const void* message, int len) {
+  CHECK(loop_->IsInLoopThread());
   if (kConnected != state_) {
     return ;
   }
@@ -148,6 +151,7 @@ void TcpConnection::set_close_callback(const CloseCallback& cb) {
 }
 
 void TcpConnection::HandleReadEvent() {
+  CHECK(loop_->IsInLoopThread());
   int n = 0;
   int _errno;
   n = input_buffer_.ReadFd(socket_->fd(), _errno);
@@ -164,6 +168,7 @@ void TcpConnection::HandleReadEvent() {
 }
 
 void TcpConnection::HandleWriteEvent() {
+  CHECK(loop_->IsInLoopThread());
   if (channel_->HasWriteEvent()) {
     int n = 0;
     n = ::write(socket_->fd(), output_buffer_.Peek(), output_buffer_.ReadableBytes());
@@ -190,6 +195,7 @@ void TcpConnection::HandleWriteEvent() {
 }
 
 void TcpConnection::HandleCloseEvent() {
+  CHECK(loop_->IsInLoopThread());
   channel_->DisableAllEvent();
 
   if (close_callback_) {
