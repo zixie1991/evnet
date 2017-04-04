@@ -2,8 +2,8 @@
 #include "http_response.h"
 #include "http_server.h"
 
-HttpServer::HttpServer(EventLoop* loop, const InetAddress& listen_addr):
-  server_(loop, listen_addr)
+HttpServer::HttpServer(EventLoop* loop, const InetAddress& listen_addr, int thread_num):
+  server_(loop, listen_addr, thread_num)
 {
   server_.set_connection_callback(bind(&HttpServer::OnConnection, this, _1));
   server_.set_message_callback(bind(&HttpServer::OnMessage, this, _1, _2));

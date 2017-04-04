@@ -14,7 +14,7 @@ class HttpServer {
     typedef function<void(const HttpRequest&, HttpResponse*)> HttpCallback;
     typedef function<void(const shared_ptr<TcpConnection>&, const shared_ptr<HttpRequest>&)> AsyncHttpCallback;
 
-    HttpServer(EventLoop* loop, const InetAddress& listen_addr);
+    HttpServer(EventLoop* loop, const InetAddress& listen_addr, int thread_num=0);
     ~HttpServer();
 
     void Start();
