@@ -33,20 +33,19 @@ void EventLoopThreadPool::Stop() {
 }
 
 EventLoop* EventLoopThreadPool::GetNextLoop() {
-  EventLoop* loop = NULL;
+  EventLoop* loop = main_loop_;
   if (!threads_.empty()) {
-    loop = threads_[next_]->event_loop();
-    next_ += 1;
-    next_ = next_ % threads_.size();
+    loop = threads_[next_]->loop();
+    next_ = (next_ + 1) % threads_.size();
   }
 
   return loop;
 }
 
 EventLoop* EventLoopThreadPool::GetLoopForHash(size_t hash_code) {
-  EventLoop* loop = NULL;
+  EventLoop* loop = main_loop_;
   if (!threads_.empty()) {
-    loop = threads_[hash_code % threads_.size()]->event_loop();
+    loop = threads_[hash_code % threads_.size()]->loop();
   }
 
   return loop;
