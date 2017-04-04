@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 
 RelayServer::RelayServer(EventLoop* loop, const InetAddress& listen_addr, const InetAddress& remote_addr):
   loop_(loop),
-  server_(loop, listen_addr),
+  server_(loop, listen_addr, 2),
   remote_addr_(remote_addr)
 {
   server_.set_http_callback(bind(&RelayServer::OnHttpRequest, this, _1, _2));
@@ -71,7 +71,8 @@ void RelayServer::Start() {
 
 void RelayServer::OnHttpRequest(const shared_ptr<TcpConnection>& connection, const shared_ptr<HttpRequest>& request) {
   if (connection->context().empty()) {
-    shared_ptr<Tunnel> tunnel(new Tunnel(loop_, remote_addr_, connection)); 
+    EventLoop* loop = connection->loop();
+    shared_ptr<Tunnel> tunnel(new Tunnel(loop, remote_addr_, connection)); 
     tunnel->Connect();
     tunnels_[connection->name()] = tunnel;
   }

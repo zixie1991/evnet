@@ -60,12 +60,14 @@ void Tunnel::OnServerMessage(const shared_ptr<TcpConnection>& connection, \
   response.set_version("HTTP/1.1");
   response.set_status_code(200);
   response.add_header("Server", "evnet http_server");
-  const shared_ptr<HttpRequest>& request = any_cast<const shared_ptr<HttpRequest>&>(connection->context(2));
-  response.add_header("Connection", request->get_header("Connection"));
+  const shared_ptr<HttpRequest> request = any_cast<const shared_ptr<HttpRequest>>(connection->context(2));
+  string conn = request->get_header("Connection");
+  if (conn != "") {
+    response.add_header("Connection", conn);
+  }
   response.set_body(message);
   client_connection_->Send(response.GenResponse());
 
-  string conn = request->get_header("Connection");
   bool close = conn == "close" || (request->version() == "HTTP/1.0" && conn != "Keep-Alive");
   if (close) {
     connection->Shutdown();
