@@ -58,7 +58,7 @@ void Socket::SetNagle(bool on) {
   int val = on ? 0 : 1;
 
   if (::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (const void *)&val, sizeof(val)) < 0) {
-    LOG(ERROR) << (on ? "enable" : "disable") << " Nagle algorithm error";
+    LOG(ERROR) << (on ? "Disable" : "Enable") << " Nagle algorithm error";
   }
 }
 
