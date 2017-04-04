@@ -4,7 +4,6 @@
 #include "event_loop_thread.h"
 
 EventLoopThread::EventLoopThread(const Callback& callback):
-  event_loop_(new EventLoop()),
   callback_(callback),
   status_(kStopped)
 {}
@@ -27,15 +26,20 @@ void EventLoopThread::Stop() {
   CHECK(IsRunning());
 
   status_ = kStopping;
-  event_loop_->Stop();
+  loop_->Stop();
 }
 
 void EventLoopThread::ThreadFunc() {
   status_ = kRunning;
-  callback_(event_loop());
+  
+  loop_ = shared_ptr<EventLoop>(new EventLoop());
 
-  event_loop_->Run();
+  if (callback_) {
+    callback_(loop());
+  }
 
-  event_loop_.reset();
+  loop_->Run();
+
+  loop_.reset();
   status_ = kStopped;
 }

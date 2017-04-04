@@ -15,8 +15,8 @@ class EventLoopThread {
     void Start();
     void Stop();
 
-    EventLoop* event_loop() {
-      return event_loop_.get();
+    EventLoop* loop() {
+      return loop_.get();
     }
 
     void set_name(const string& name) {
@@ -38,7 +38,7 @@ class EventLoopThread {
   private:
     void ThreadFunc();
 
-    shared_ptr<EventLoop> event_loop_;
+    shared_ptr<EventLoop> loop_;
     Callback callback_;
     shared_ptr<std::thread> thread_;
 
