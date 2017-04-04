@@ -21,6 +21,7 @@ EventLoop::~EventLoop() {
 }
 
 void EventLoop::Run() {
+  CHECK(IsInLoopThread());
   running_ = true;
 
   while (running_) {
@@ -120,4 +121,8 @@ void EventLoop::UpdateChannel(Channel* channel) {
 
 void EventLoop::RemoveChannel(Channel* channel) {
   poller_->RemoveChannel(channel);
+}
+
+bool EventLoop::IsInLoopThread() const {
+  return tid_ == std::this_thread::get_id();
 }

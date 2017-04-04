@@ -35,9 +35,7 @@ class EventLoop {
     void RemoveChannel(Channel* channel);
 
     // current thread is in eventloop thread.
-    bool IsInLoopThread() const {
-      return tid_ == std::this_thread::get_id();
-    }
+    bool IsInLoopThread() const;
 
     bool running() const {
       return running_;
