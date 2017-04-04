@@ -29,6 +29,20 @@ class TcpConnection: public enable_shared_from_this<TcpConnection> {
       return peeraddr_;
     }
 
+    /**
+     * @brief 关闭(true)/开启Nagle算法，允许小封包的发送
+     *
+     * @param on
+     */
+    void SetTcpNoDelay(bool on);
+
+    /**
+     * @brief 保持存活
+     *
+     * @param on
+     */
+    void SetKeepAlive(bool on);
+
     // called when accept a new connection
     // should be called only once
     void ConnectionEstablished();

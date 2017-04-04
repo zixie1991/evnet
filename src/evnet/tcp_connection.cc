@@ -29,6 +29,15 @@ TcpConnection::TcpConnection(EventLoop* loop, string name, int sockfd, const Ine
 TcpConnection::~TcpConnection() {
 }
 
+void TcpConnection::SetTcpNoDelay(bool on) {
+  socket_->SetNagle(!on);
+}
+
+// 周期性的测试连接是否存活
+void TcpConnection::SetKeepAlive(bool on) {
+  socket_->SetKeepAlive(on);
+}
+
 void TcpConnection::ConnectionEstablished() {
   CHECK(loop_->IsInLoopThread());
   channel_->EnableReadEvent();
